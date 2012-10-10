@@ -44,6 +44,8 @@ float lookat_z;
 
 float clipping_param;
 
+void display();
+
 GLfloat theta = 15.0495;
 /*********/
 /*METHODS*/
@@ -51,18 +53,22 @@ GLfloat theta = 15.0495;
 
 /*Set up window*/
 void setupViewport(int w, int h) {
+
+    glClearColor(1.0, 0.0, 0.0, 0.0);
     glViewport(0, 0, w, h); 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH, 0.0, h*YSCALE/INITIAL_HEIGHT );
+    gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH*0.1, 0.0, h*YSCALE/INITIAL_HEIGHT );
 }
 
 
-/*Sets clear color and background color*/
+/*Sets clear color and background color, sets up Viewport*/
 void init() {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearColor(1.0, 0.0, 0.0, 0.0);
     glColor3f(1.0, 1.0, 0.0);  /* yellow */
-    setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
+    setupViewport((int)INITIAL_WIDTH*0.8, (int)INITIAL_HEIGHT*0.8);
+    //setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
+
 }
 
 /*Called when window gets reshaped*/
@@ -98,11 +104,13 @@ void display(){
 
 
 	/*draw polygon*/
+	/*
 	glBegin(GL_POLYGON);
 	glVertex2f(x, y);
 	glVertex2f(x+side*cos(radians(theta+i*(360.00/8))), y+side*sin(radians(theta+i*(360.00/8))));
 	glVertex2f(x+side*cos(radians(theta+(i+1)*(360.00/8))), y+side*sin(radians(theta+(i+1)*(360.00/8))));
 	glEnd();
+	*/
 	/*************/
     }
 
