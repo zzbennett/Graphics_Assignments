@@ -19,22 +19,35 @@
 #define PI 3.1415926535
 
 
+/******************/
+/*GLOBAL VARIABLES*/
+/******************/
+
 int main_window;
 
 /*stuff from hw1*/
 GLfloat x=5.0, y=5.0;
 int color = 1;
 GLfloat side = 3.0;
-GLfloat theta = 0.0;
-
-int num_sides = 8;
-int speed = 5; 
-int sides_id = 2;
-float LOWER_COLOR_THRESHOLD = .10;
-float UPPER_COLOR_THRESHOLD = .90;
 
 /*stuff from hw2*/
 
+float cube_size = 10.0;
+
+float eye_x = 50.0;
+float eye_y = 26.375;
+float eye_z = 23.41;
+
+float lookat_x;
+float lookat_y;
+float lookat_z;
+
+float clipping_param;
+
+GLfloat theta = 15.0495;
+/*********/
+/*METHODS*/
+/*********/
 
 /*Set up window*/
 void setupViewport(int w, int h) {
@@ -75,33 +88,23 @@ void display(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     /*range of grey spectrum*/
-    float range = UPPER_COLOR_THRESHOLD - LOWER_COLOR_THRESHOLD;
     float c;
     float slope;
 
-    for( i = 0; i<num_sides; i++){
+    for( i = 0; i<8; i++){
+
 	/*set pen color*/
-	if( i<num_sides/2 ) {
-	    slope = ( range/((num_sides/2.0) * (num_sides/2.0)) );
-	    c = LOWER_COLOR_THRESHOLD + slope * (i*i);
-	    glColor3f(c,c,c);
-	}
-	else{
-	    slope = ( range/((num_sides/2.0) * (num_sides/2.0)) );
-	    c = LOWER_COLOR_THRESHOLD + slope * ((-num_sides+i)*(-num_sides+i));
-	    glColor3f(c,c,c);
-	}
-	/***************/
+	glColor3f(50,70,90);
 
 
 	/*draw polygon*/
 	glBegin(GL_POLYGON);
 	glVertex2f(x, y);
-	glVertex2f(x+side*cos(radians(theta+i*(360.00/num_sides))), y+side*sin(radians(theta+i*(360.00/num_sides))));
-	glVertex2f(x+side*cos(radians(theta+(i+1)*(360.00/num_sides))), y+side*sin(radians(theta+(i+1)*(360.00/num_sides))));
+	glVertex2f(x+side*cos(radians(theta+i*(360.00/8))), y+side*sin(radians(theta+i*(360.00/8))));
+	glVertex2f(x+side*cos(radians(theta+(i+1)*(360.00/8))), y+side*sin(radians(theta+(i+1)*(360.00/8))));
 	glEnd();
+	/*************/
     }
-    /*************/
 
     glutSwapBuffers();
 }
@@ -111,7 +114,7 @@ void display(){
 /*********************/
 
 /*call back function for sides user control*/
-void sides_callback(int ID){
+/*void sides_callback(int ID){
 
     switch (sides_id) {
 	case 0:
@@ -132,11 +135,32 @@ void sides_callback(int ID){
     }
 
     display();
+}*/
+
+
+/*call back function for eye position  user control*/
+void eye_pos_callback(int ID) {
+
+    display();
+
 }
 
+/*call back function for cube size user control*/
+void cube_size_callback(int ID) {
 
-/*call back function for speed user control*/
-void speed_callback(int ID) {
+    display();
+
+}
+
+/*call back function for look at point user control*/
+void lookat_callback(int ID) {
+
+    display();
+
+}
+
+/*call back function for theta user control*/
+void theta_callback(int ID) {
 
     display();
 
@@ -146,7 +170,7 @@ void speed_callback(int ID) {
 /*IDLE FUNCTION*/
 /***************/
 void spinDisplay() { 
-    theta += 0.01*speed;
+    theta += 0.01*.1;
     display();
 }
 
@@ -167,54 +191,52 @@ int main(int argc, char **argv) {
     /***************/
     /*USER CONTROLS*/
     /***************/
-
     GLUI *control_panel = GLUI_Master.create_glui( "Controls");
-    new GLUI_StaticText( control_panel, "Magic Controls" );
-    new GLUI_Separator(control_panel);
 
-    /*set color threshold */
-    GLUI_Rollout *color_rollout = new GLUI_Rollout(control_panel, "Color Threshold", false );
-
-    /*upper threshold*/
-    GLUI_Spinner *ucolor_spinner= new GLUI_Spinner(color_rollout, "Upper Threshold:", GLUI_SPINNER_FLOAT, &UPPER_COLOR_THRESHOLD, 0, speed_callback);
-    ucolor_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);
-    /*lower threshold*/
-    GLUI_Spinner *lcolor_spinner= new GLUI_Spinner(color_rollout, "Lower Threshold:", GLUI_SPINNER_FLOAT, &LOWER_COLOR_THRESHOLD, 0, speed_callback);
-    lcolor_spinner->set_float_limits(0.0, UPPER_COLOR_THRESHOLD, GLUI_LIMIT_CLAMP);
-
+    /*column 1*/
+    new GLUI_StaticText( control_panel, "Insane Controls" );
     new GLUI_Separator(control_panel);
     new GLUI_Button(control_panel, "Quit", 0, (GLUI_Update_CB)exit);
 
-
-
+    /*column 2*/
     new GLUI_Column(control_panel, true);
+    GLUI_Spinner *cube_size_spinner= new GLUI_Spinner(control_panel, "SIZE", GLUI_SPINNER_FLOAT, &cube_size, 0, cube_size_callback);
+    /*cube_size_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
-    GLUI_Rollout *speed_rollout = new GLUI_Rollout(control_panel, "Speed", false );
+    /*column 3*/
+    new GLUI_Column(control_panel, true);
+    /*Eye Position*/
+    GLUI_Rollout *eye_position_rollout = new GLUI_Rollout(control_panel, "Eye Position", true );
+    /*set x*/
+    GLUI_Spinner *eye_x_spinner= new GLUI_Spinner(eye_position_rollout, "X", GLUI_SPINNER_FLOAT, &eye_x, 0, eye_pos_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
+    /*set y*/
+    GLUI_Spinner *eye_y_spinner= new GLUI_Spinner(eye_position_rollout, "Y", GLUI_SPINNER_FLOAT, &eye_y, 0, eye_pos_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
+    /*set z*/
+    GLUI_Spinner *eye_z_spinner= new GLUI_Spinner(eye_position_rollout, "Z", GLUI_SPINNER_FLOAT, &eye_z, 0, eye_pos_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
-    GLUI_Spinner *speed_spinner= new GLUI_Spinner(speed_rollout, "Speed:", GLUI_SPINNER_INT, &speed, 0, speed_callback);
-    speed_spinner->set_int_limits(0, 10, GLUI_LIMIT_CLAMP);
+    /*Looking at*/
+    GLUI_Rollout *lookat_rollout = new GLUI_Rollout(control_panel, "Looking At", false );
+    /*set x*/
+    GLUI_Spinner *lookat_x_spinner= new GLUI_Spinner(lookat_rollout, "X", GLUI_SPINNER_FLOAT, &lookat_x, 0, lookat_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
+    /*set y*/
+    GLUI_Spinner *lookat_y_spinner= new GLUI_Spinner(lookat_rollout, "Y", GLUI_SPINNER_FLOAT, &lookat_y, 0, lookat_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
+    /*set z*/
+    GLUI_Spinner *lookat_z_spinner= new GLUI_Spinner(lookat_rollout, "Z", GLUI_SPINNER_FLOAT, &lookat_z, 0, lookat_callback);
+    /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
-    /*SPEED RADIO BUTTONS*/
+    /*column 4*/
+    new GLUI_Column(control_panel, true);
+    /*clipping parameters*/
+    GLUI_Rollout *clipping_rollout = new GLUI_Rollout(control_panel, "Clipping Parameters", false );
 
-    /*SPINNERS*/
-    /*GLUI_Spinner *xpos= new GLUI_Spinner(box_rollout, "X", GLUI_SPINNER_FLOAT, &x, 0, position_callback);
-      xpos->set_float_limits(0.0, 10.0, GLUI_LIMIT_CLAMP);
-      GLUI_Spinner *ypos= new GLUI_Spinner(box_rollout, "Y", GLUI_SPINNER_FLOAT, &y, 0, position_callback);
-      ypos->set_float_limits(0.0, 10.0, GLUI_LIMIT_CLAMP);*/
-    new GLUI_Separator(speed_rollout);
-    GLUI_Rollout *sides_rollout = new GLUI_Rollout(control_panel, "Sides", false );
+    GLUI_Spinner *theta_spinner= new GLUI_Spinner(control_panel, "THETA", GLUI_SPINNER_INT, &theta, 0, theta_callback);
+    /*speed_spinner->set_int_limits(0, 10, GLUI_LIMIT_CLAMP);*/
 
-    GLUI_RadioGroup *group1 = new GLUI_RadioGroup(sides_rollout, &sides_id, 3, sides_callback);
-    new GLUI_RadioButton(group1, "8" );
-    new GLUI_RadioButton(group1, "16" );
-    new GLUI_RadioButton(group1, "32" );
-    new GLUI_RadioButton(group1, "64" );
-    new GLUI_RadioButton(group1, "128" );
-    group1->set_int_val(0); /*defaul set to 8*/
-
-    /*TEXT BOX*/
-    /*new GLUI_StaticText(box_rollout, "Color:" );*/
-    
     /*******************/
     /*END USER CONTROLS*/
     /*******************/
