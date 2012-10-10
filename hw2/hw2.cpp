@@ -17,6 +17,7 @@
 #define XSCALE 10.0
 #define YSCALE 10.0
 #define PI 3.1415926535
+#define SQUARE_OFFSET 0.1
 
 
 /******************/
@@ -25,12 +26,8 @@
 
 int main_window;
 
-/*stuff from hw1*/
-GLfloat x=5.0, y=5.0;
-int color = 1;
-GLfloat side = 3.0;
-
-/*stuff from hw2*/
+int global_w = INITIAL_WIDTH;
+int global_h = INITIAL_HEIGHT;
 
 float cube_size = 10.0;
 
@@ -38,15 +35,22 @@ float eye_x = 50.0;
 float eye_y = 26.375;
 float eye_z = 23.41;
 
-float lookat_x;
-float lookat_y;
-float lookat_z;
 
-float clipping_param;
+float lookat_x = 0;
+float lookat_y = 0;
+float lookat_z = 0;
 
-void display();
+float clipping_param = 0;
+float clipping_yon = 0;
+float clipping_hither = 0;
 
-GLfloat theta = 15.0495;
+int square_bottom;
+int square_top;
+int square_left;
+int square_right; 
+
+
+GLfloat theta;
 /*********/
 /*METHODS*/
 /*********/
@@ -54,20 +58,26 @@ GLfloat theta = 15.0495;
 /*Set up window*/
 void setupViewport(int w, int h) {
 
-    glClearColor(1.0, 0.0, 0.0, 0.0);
-    glViewport(0, 0, w, h); 
+    square_bottom = (int) h*SQUARE_OFFSET;
+    square_top = (int) h-(h*2*SQUARE_OFFSET);
+    square_left = (int) w*SQUARE_OFFSET;
+    square_right = (int) w-(w*2*SQUARE_OFFSET);
+
+    //glViewport(square_bottom, square_left, square_right, square_top); 
+    glViewport(SQUARE_OFFSET*w,SQUARE_OFFSET*h, w-(w*2*SQUARE_OFFSET), h-(h*2*SQUARE_OFFSET)); 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH*0.1, 0.0, h*YSCALE/INITIAL_HEIGHT );
+    gluOrtho2D(square_left, square_right, square_bottom, square_top);
+    //gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH*0.1, 0.0, h*YSCALE/INITIAL_HEIGHT );
+
 }
 
 
 /*Sets clear color and background color, sets up Viewport*/
 void init() {
-    glClearColor(1.0, 0.0, 0.0, 0.0);
-    glColor3f(1.0, 1.0, 0.0);  /* yellow */
-    setupViewport((int)INITIAL_WIDTH*0.8, (int)INITIAL_HEIGHT*0.8);
-    //setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
+
+    glClearColor(0.0, 0.8, 0.8, 0.0);
+    setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
 
 }
 
@@ -87,32 +97,33 @@ GLfloat radians(float alpha) {
 /*Draws the window*/
 /******************/
 void display(){
-    int i;
-    float alpha;
+    //int i;
+    //float alpha;
 
     glutSetWindow(main_window);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /*range of grey spectrum*/
-    float c;
-    float slope;
 
-    for( i = 0; i<8; i++){
+    glColor3f(1.0,0.2,1.0);
 
-	/*set pen color*/
-	glColor3f(50,70,90);
+    /* square_left = 50
+     * square_right = 450
+     * square_top = 450
+     * square_bottom = 50 */
+    glBegin(GL_POLYGON);
+    glVertex2f(square_left, square_bottom);
+    glVertex2f(square_right, square_bottom);
+    glVertex2f(square_right, square_top);
+    glVertex2f(square_left, square_top);
+    glEnd();
 
-
-	/*draw polygon*/
-	/*
-	glBegin(GL_POLYGON);
-	glVertex2f(x, y);
-	glVertex2f(x+side*cos(radians(theta+i*(360.00/8))), y+side*sin(radians(theta+i*(360.00/8))));
-	glVertex2f(x+side*cos(radians(theta+(i+1)*(360.00/8))), y+side*sin(radians(theta+(i+1)*(360.00/8))));
-	glEnd();
-	*/
-	/*************/
-    }
+    glColor3f(1.0,0.5,1.0);
+    glBegin(GL_POLYGON);
+    glVertex2f(square_left+5, square_bottom+5);
+    glVertex2f(square_right-5, square_bottom+5);
+    glVertex2f(square_right-5, square_top-5);
+    glVertex2f(square_left+5, square_top-5);
+    glEnd();
 
     glutSwapBuffers();
 }
@@ -174,11 +185,17 @@ void theta_callback(int ID) {
 
 }
 
+/*call back function for theta user control*/
+void clipping_callback(int ID) {
+
+    display();
+
+}
+
 /***************/
 /*IDLE FUNCTION*/
 /***************/
 void spinDisplay() { 
-    theta += 0.01*.1;
     display();
 }
 
@@ -208,41 +225,128 @@ int main(int argc, char **argv) {
 
     /*column 2*/
     new GLUI_Column(control_panel, true);
-    GLUI_Spinner *cube_size_spinner= new GLUI_Spinner(control_panel, "SIZE", GLUI_SPINNER_FLOAT, &cube_size, 0, cube_size_callback);
+    /*set cube size*/
+    GLUI_Spinner *cube_size_spinner= new GLUI_Spinner(
+	    control_panel,
+	    "SIZE",
+	    GLUI_SPINNER_FLOAT,
+	    &cube_size,
+	    0,
+	    cube_size_callback);
     /*cube_size_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
     /*column 3*/
     new GLUI_Column(control_panel, true);
+
     /*Eye Position*/
-    GLUI_Rollout *eye_position_rollout = new GLUI_Rollout(control_panel, "Eye Position", true );
-    /*set x*/
-    GLUI_Spinner *eye_x_spinner= new GLUI_Spinner(eye_position_rollout, "X", GLUI_SPINNER_FLOAT, &eye_x, 0, eye_pos_callback);
+    GLUI_Rollout *eye_position_rollout = new GLUI_Rollout(
+	    control_panel,
+	    "Eye Position",
+	    true );
+
+    /*set eye_x*/
+    GLUI_Spinner *eye_x_spinner= new GLUI_Spinner(
+	    eye_position_rollout,
+	    "X",
+	    GLUI_SPINNER_FLOAT,
+	    &eye_x,
+	    0,
+	    eye_pos_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
-    /*set y*/
-    GLUI_Spinner *eye_y_spinner= new GLUI_Spinner(eye_position_rollout, "Y", GLUI_SPINNER_FLOAT, &eye_y, 0, eye_pos_callback);
+
+    /*set eye_y*/
+    GLUI_Spinner *eye_y_spinner= new GLUI_Spinner(
+	    eye_position_rollout,
+	    "Y",
+	    GLUI_SPINNER_FLOAT,
+	    &eye_y,
+	    0,
+	    eye_pos_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
-    /*set z*/
-    GLUI_Spinner *eye_z_spinner= new GLUI_Spinner(eye_position_rollout, "Z", GLUI_SPINNER_FLOAT, &eye_z, 0, eye_pos_callback);
+
+    /*set eye_z*/
+    GLUI_Spinner *eye_z_spinner= new GLUI_Spinner(
+	    eye_position_rollout,
+	    "Z",
+	    GLUI_SPINNER_FLOAT,
+	    &eye_z,
+	    0,
+	    eye_pos_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
     /*Looking at*/
-    GLUI_Rollout *lookat_rollout = new GLUI_Rollout(control_panel, "Looking At", false );
-    /*set x*/
-    GLUI_Spinner *lookat_x_spinner= new GLUI_Spinner(lookat_rollout, "X", GLUI_SPINNER_FLOAT, &lookat_x, 0, lookat_callback);
+    GLUI_Rollout *lookat_rollout = new GLUI_Rollout(
+	    control_panel,
+	    "Looking At",
+	    false );
+
+    /*set lookat_x*/
+    GLUI_Spinner *lookat_x_spinner= new GLUI_Spinner(
+	    lookat_rollout,
+	    "X",
+	    GLUI_SPINNER_FLOAT,
+	    &lookat_x,
+	    0,
+	    lookat_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
-    /*set y*/
-    GLUI_Spinner *lookat_y_spinner= new GLUI_Spinner(lookat_rollout, "Y", GLUI_SPINNER_FLOAT, &lookat_y, 0, lookat_callback);
+
+    /*set lookat_y*/
+    GLUI_Spinner *lookat_y_spinner= new GLUI_Spinner(
+	    lookat_rollout,
+	    "Y",
+	    GLUI_SPINNER_FLOAT,
+	    &lookat_y,
+	    0,
+	    lookat_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
-    /*set z*/
-    GLUI_Spinner *lookat_z_spinner= new GLUI_Spinner(lookat_rollout, "Z", GLUI_SPINNER_FLOAT, &lookat_z, 0, lookat_callback);
+
+    /*set lookat_z*/
+    GLUI_Spinner *lookat_z_spinner= new GLUI_Spinner(
+	    lookat_rollout,
+	    "Z",
+	    GLUI_SPINNER_FLOAT,
+	    &lookat_z,
+	    0,
+	    lookat_callback);
     /*eye_x_spinner->set_float_limits(LOWER_COLOR_THRESHOLD, 1.0, GLUI_LIMIT_CLAMP);*/
 
     /*column 4*/
     new GLUI_Column(control_panel, true);
     /*clipping parameters*/
-    GLUI_Rollout *clipping_rollout = new GLUI_Rollout(control_panel, "Clipping Parameters", false );
+    GLUI_Rollout *clipping_rollout = new GLUI_Rollout(
+	    control_panel,
+	    "Clipping Parameters",
+	    false );
+    GLUI_Spinner *clipping_spinner= new GLUI_Spinner(
+	    clipping_rollout,
+	    "Clip Edges",
+	    GLUI_SPINNER_FLOAT,
+	    &clipping_param,
+	    0,
+	    clipping_callback);
+    GLUI_Spinner *clipping_yon_spinner= new GLUI_Spinner(
+	    clipping_rollout,
+	    "Clip Yon Plane",
+	    GLUI_SPINNER_FLOAT,
+	    &clipping_yon,
+	    0,
+	    clipping_callback);
+    GLUI_Spinner *clipping_hither_spinner= new GLUI_Spinner(
+	    clipping_rollout,
+	    "Clip Hither Plane",
+	    GLUI_SPINNER_FLOAT,
+	    &clipping_hither,
+	    0,
+	    clipping_callback);
 
-    GLUI_Spinner *theta_spinner= new GLUI_Spinner(control_panel, "THETA", GLUI_SPINNER_INT, &theta, 0, theta_callback);
+    /*set theta*/
+    GLUI_Spinner *theta_spinner= new GLUI_Spinner(
+	    control_panel,
+	    "THETA",
+	    GLUI_SPINNER_INT,
+	    &theta,
+	    0,
+	    theta_callback);
     /*speed_spinner->set_int_limits(0, 10, GLUI_LIMIT_CLAMP);*/
 
     /*******************/
