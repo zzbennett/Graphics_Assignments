@@ -5,56 +5,7 @@
  * Creates a rotating 3D cube using only 2D features of OpenGL
  */
 
-#include<stdio.h>
-#include<GL/glut.h>
-#include<GL/glui.h>
-#include<math.h>
-
-#define true 1
-#define false 0
-#define INITIAL_WIDTH 500
-#define INITIAL_HEIGHT 500
-#define XSCALE 10.0
-#define YSCALE 10.0
-#define PI 3.1415926535
-#define SQUARE_OFFSET 0.1
-
-
-/******************/
-/*GLOBAL VARIABLES*/
-/******************/
-
-int main_window;
-
-int global_w = INITIAL_WIDTH;
-int global_h = INITIAL_HEIGHT;
-
-float cube_size = 10.0;
-
-float eye_x = 50.0;
-float eye_y = 26.375;
-float eye_z = 23.41;
-
-
-float lookat_x = 0;
-float lookat_y = 0;
-float lookat_z = 0;
-
-float clipping_param = 0;
-float clipping_yon = 0;
-float clipping_hither = 0;
-
-int square_top;
-int square_right; 
-
-int** v_matrix;
-int** p_matrix;
-int** w_matrix;
-
-int up_vector[3] = {0, 0, 1};
-
-
-GLfloat theta;
+#include"hw2.h"
 
 /*********/
 /*METHODS*/
@@ -63,6 +14,7 @@ GLfloat theta;
 /*Set up window*/
 void setupViewport(int w, int h) {
 
+    /*square bottom and square left are 0, 0*/
     square_top = (int) h-(h*2*SQUARE_OFFSET) - h*SQUARE_OFFSET;
     square_right = (int) w-(w*2*SQUARE_OFFSET) - w*SQUARE_OFFSET;
 
@@ -86,6 +38,7 @@ void init() {
 
 /*Called when window gets reshaped*/
 void myReshape(int w, int h) {
+    calc_w_matrix();
     setupViewport(w, h);
     glutPostWindowRedisplay(main_window);  
 }
@@ -100,19 +53,15 @@ GLfloat radians(float alpha) {
 /*Draws the window*/
 /******************/
 void display(){
-    //int i;
-    //float alpha;
-
     glutSetWindow(main_window);
     glClear(GL_COLOR_BUFFER_BIT);
 
 
+    /******************/
+    /*Drawing viewport*/
+    /******************/
     glColor3f(1.0,0.2,1.0);
 
-    /* square_left = 50
-     * square_right = 450
-     * square_top = 450
-     * square_bottom = 50 */
     glBegin(GL_POLYGON);
     glVertex2f(0, 0);
     glVertex2f(square_right, 0);
@@ -128,6 +77,10 @@ void display(){
     glVertex2f(5, square_top-5);
     glEnd();
 
+    /******************
+     * Drawing Lines *
+     * ***************/
+
     glutSwapBuffers();
 }
 
@@ -135,34 +88,11 @@ void display(){
 /*CALL BACK FUNCTIONS*/
 /*********************/
 
-/*call back function for sides user control*/
-/*void sides_callback(int ID){
-
-    switch (sides_id) {
-	case 0:
-	    num_sides = 8;
-	    break;
-	case 1:
-	    num_sides = 16;
-	    break;
-	case 2:
-	    num_sides = 32;
-	    break;
-	case 3:
-	    num_sides = 64;
-	    break;
-	case 4:
-	    num_sides = 128;
-	    break;
-    }
-
-    display();
-}*/
-
 
 /*call back function for eye position  user control*/
 void eye_pos_callback(int ID) {
 
+    calc_v_matrix();
     display();
 
 }
@@ -170,6 +100,19 @@ void eye_pos_callback(int ID) {
 /*call back function for cube size user control*/
 void cube_size_callback(int ID) {
 
+    /*adjust vertices*/
+    vertices[1][1] = cube_size; /*1*/
+    vertices[2][0] = cube_size; /*2*/
+    vertices[3][0] = cube_size; /*3*/
+    vertices[3][1] = cube_size; /*3*/
+    vertices[4][2] = cube_size; /*4*/
+    vertices[5][1] = cube_size; /*5*/
+    vertices[5][2] = cube_size; /*5*/
+    vertices[6][0] = cube_size; /*6*/
+    vertices[6][2] = cube_size; /*6*/
+    vertices[7][0] = cube_size; /*7*/
+    vertices[7][1] = cube_size; /*7*/
+    vertices[7][2] = cube_size; /*7*/
     display();
 
 }
@@ -177,6 +120,7 @@ void cube_size_callback(int ID) {
 /*call back function for look at point user control*/
 void lookat_callback(int ID) {
 
+    calc_v_matrix();
     display();
 
 }
@@ -191,6 +135,7 @@ void theta_callback(int ID) {
 /*call back function for theta user control*/
 void clipping_callback(int ID) {
 
+    calc_p_matrix();
     display();
 
 }
@@ -199,7 +144,6 @@ void clipping_callback(int ID) {
 /*IDLE FUNCTION*/
 /***************/
 void spinDisplay() { 
-    display();
 }
 
 /***********************/
@@ -223,7 +167,8 @@ void calc_v_matrix(){
 
 
     int** ret;
-    v_matrix = ret;
+    Matrix* mat;
+    v_matrix = mat;
 }
 
 void calc_p_matrix(){
