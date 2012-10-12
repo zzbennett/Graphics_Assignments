@@ -62,5 +62,6 @@ void calc_v_matrix();
 void calc_p_matrix();
 void calc_w_matrix();
 
-
 int up_vector[3] = {0, 0, 1};
+
+void testMatrices();

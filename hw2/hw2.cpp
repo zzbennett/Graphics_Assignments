@@ -31,6 +31,15 @@ void setupViewport(int w, int h) {
 /*Sets clear color and background color, sets up Viewport*/
 void init() {
 
+   v_matrix = new Matrix();
+   calc_v_matrix;
+
+   p_matrix = new Matrix();
+   calc_p_matrix;
+
+   w_matrix = new Matrix();
+   calc_w_matrix;
+
     glClearColor(0.0, 0.8, 0.8, 0.0);
     setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
 
@@ -157,12 +166,6 @@ void spinDisplay() {
     return ret;
 }*/
 
-Matrix* homogenize(Matrix* matrix){
-
-    Matrix* ret;
-    return ret;
-}
-
 void calc_v_matrix(){
 
 
@@ -187,7 +190,7 @@ Matrix* FullViewPipeLine(Matrix* input_coordinates ){
     output = input_coordinates->Multiply(v_matrix);
     output = output->Multiply(p_matrix);
     output = output->Multiply(w_matrix);
-    output = homogenize(output);
+    output = output->Homogenize(output);
     return output;
 }
 
@@ -347,7 +350,33 @@ int main(int argc, char **argv) {
 
     control_panel->set_main_gfx_window(main_window);
     GLUI_Master.set_glutIdleFunc(spinDisplay);
+    testMatrices();
     glutMainLoop();
     return EXIT_SUCCESS;
 
 } 
+
+void testMatrices(){
+    float matrixAElements[4][4] = { { 1, 2, 3, 4},
+				    { 1, 2, 3, 4},
+				    { 1, 2, 3, 4},
+				    { 1, 2, 3, 4} };
+
+    float matrixBElements[4][4] = { { 1, 2, 3, 4},
+				    { 1, 2, 3, 4},
+				    { 1, 2, 3, 4},
+				    { 1, 2, 3, 4} };
+    Matrix* A = new Matrix(matrixAElements);
+    Matrix* B = new Matrix(matrixBElements);
+
+    float result = A->DotProduct( A, B, 1, 1);
+    printf("Dot product result is: %f\n", result);
+
+}
+
+
+
+
+
+
+
