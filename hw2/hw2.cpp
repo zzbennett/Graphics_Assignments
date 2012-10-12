@@ -44,13 +44,18 @@ float clipping_param = 0;
 float clipping_yon = 0;
 float clipping_hither = 0;
 
-int square_bottom;
 int square_top;
-int square_left;
 int square_right; 
+
+int** v_matrix;
+int** p_matrix;
+int** w_matrix;
+
+int up_vector[3] = {0, 0, 1};
 
 
 GLfloat theta;
+
 /*********/
 /*METHODS*/
 /*********/
@@ -58,16 +63,14 @@ GLfloat theta;
 /*Set up window*/
 void setupViewport(int w, int h) {
 
-    square_bottom = (int) h*SQUARE_OFFSET;
-    square_top = (int) h-(h*2*SQUARE_OFFSET);
-    square_left = (int) w*SQUARE_OFFSET;
-    square_right = (int) w-(w*2*SQUARE_OFFSET);
+    square_top = (int) h-(h*2*SQUARE_OFFSET) - h*SQUARE_OFFSET;
+    square_right = (int) w-(w*2*SQUARE_OFFSET) - w*SQUARE_OFFSET;
 
     //glViewport(square_bottom, square_left, square_right, square_top); 
     glViewport(SQUARE_OFFSET*w,SQUARE_OFFSET*h, w-(w*2*SQUARE_OFFSET), h-(h*2*SQUARE_OFFSET)); 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluOrtho2D(square_left, square_right, square_bottom, square_top);
+    gluOrtho2D(0, square_right, 0, square_top);
     //gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH*0.1, 0.0, h*YSCALE/INITIAL_HEIGHT );
 
 }
@@ -111,18 +114,18 @@ void display(){
      * square_top = 450
      * square_bottom = 50 */
     glBegin(GL_POLYGON);
-    glVertex2f(square_left, square_bottom);
-    glVertex2f(square_right, square_bottom);
+    glVertex2f(0, 0);
+    glVertex2f(square_right, 0);
     glVertex2f(square_right, square_top);
-    glVertex2f(square_left, square_top);
+    glVertex2f(0, square_top);
     glEnd();
 
     glColor3f(1.0,0.5,1.0);
     glBegin(GL_POLYGON);
-    glVertex2f(square_left+5, square_bottom+5);
-    glVertex2f(square_right-5, square_bottom+5);
+    glVertex2f(5, 5);
+    glVertex2f(square_right-5, 5);
     glVertex2f(square_right-5, square_top-5);
-    glVertex2f(square_left+5, square_top-5);
+    glVertex2f(5, square_top-5);
     glEnd();
 
     glutSwapBuffers();
@@ -197,6 +200,51 @@ void clipping_callback(int ID) {
 /***************/
 void spinDisplay() { 
     display();
+}
+
+/***********************/
+/*MATRIX TRANSFORMATION*/
+/***********************/
+
+/*Take in two matrices, return the resultant matrix*/
+int** MultiplyMatrices(int** matrix_1, int** matrix_2){
+
+    int** ret;
+    return ret;
+}
+
+int** homogenize(int** input){
+
+    int** ret;
+    return ret;
+}
+
+void calc_v_matrix(){
+
+
+    int** ret;
+    v_matrix = ret;
+}
+
+void calc_p_matrix(){
+
+    int** ret;
+    p_matrix = ret;
+}
+
+void calc_w_matrix(){
+
+    int** ret;
+    w_matrix = ret;
+}
+
+int** FullViewPipeLine(int** input_coordinates ){
+    int** output = 
+	MultiplyMatrices( input_coordinates, 
+	    MultiplyMatrices(v_matrix, 
+		MultiplyMatrices(p_matrix, w_matrix)));
+    output = homogenize(output);
+    return output;
 }
 
 int main(int argc, char **argv) {
