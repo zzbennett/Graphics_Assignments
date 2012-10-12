@@ -1,4 +1,3 @@
-using namespace std;
 
 #include<stdio.h>
 #include<GL/glut.h>
@@ -15,6 +14,7 @@ using namespace std;
 #define PI 3.1415926535
 #define SQUARE_OFFSET 0.1
 
+using namespace std;
 
 /******************/
 /*GLOBAL VARIABLES*/
@@ -54,11 +54,9 @@ GLfloat theta;
 int square_top;
 int square_right; 
 
-/*int** v_matrix;*/
-int** p_matrix;
-int** w_matrix;
-
 Matrix* v_matrix;
+Matrix* p_matrix;
+Matrix* w_matrix;
 
 void calc_v_matrix();
 void calc_p_matrix();

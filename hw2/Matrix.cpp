@@ -9,6 +9,8 @@ Matrix::Matrix(float elements[4][4]){
 }
 
 Matrix* Matrix::Multiply(Matrix* matrix){
+
+
     Matrix* ret = new Matrix();
     return ret;
 }

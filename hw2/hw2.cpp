@@ -151,43 +151,42 @@ void spinDisplay() {
 /***********************/
 
 /*Take in two matrices, return the resultant matrix*/
-int** MultiplyMatrices(int** matrix_1, int** matrix_2){
+/*int** MultiplyMatrices(int** matrix_1, int** matrix_2){
 
     int** ret;
     return ret;
-}
+}*/
 
-int** homogenize(int** input){
+Matrix* homogenize(Matrix* matrix){
 
-    int** ret;
+    Matrix* ret;
     return ret;
 }
 
 void calc_v_matrix(){
 
 
-    int** ret;
-    Matrix* mat;
-    v_matrix = mat;
+    Matrix* matrix;
+    v_matrix = matrix;
 }
 
 void calc_p_matrix(){
 
-    int** ret;
-    p_matrix = ret;
+    Matrix* matrix;
+    p_matrix = matrix;
 }
 
 void calc_w_matrix(){
 
-    int** ret;
-    w_matrix = ret;
+    Matrix* matrix;
+    w_matrix = matrix;
 }
 
-int** FullViewPipeLine(int** input_coordinates ){
-    int** output = 
-	MultiplyMatrices( input_coordinates, 
-	    MultiplyMatrices(v_matrix, 
-		MultiplyMatrices(p_matrix, w_matrix)));
+Matrix* FullViewPipeLine(Matrix* input_coordinates ){
+    Matrix* output = new Matrix();
+    output = input_coordinates->Multiply(v_matrix);
+    output = output->Multiply(p_matrix);
+    output = output->Multiply(w_matrix);
     output = homogenize(output);
     return output;
 }

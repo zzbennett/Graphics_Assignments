@@ -1,12 +1,15 @@
+CC=g++
 FLAGS = -O2
 LIBS = -lglut -lGLU -lGL -lm
 GLUI_LIBS = -lglui -lglut -lGLU -lGL -lm
+TARGETS = Matrix.o hw2
 
-all: hw2 matrix
+all: $(TARGETS)
 
-hw2: hw2.cpp 
-	g++ hw2.cpp -o hw2 $(FLAGS) $(GLUI_LIBS)
-matrix: Matrix.cpp
-	g++ Matrix.cpp -c $(FLAGS) $(GLUI_LIBS)
+Matrix.o: Matrix.cpp Matrix.h
+	$(CC) $(FLAGS) -c Matrix.cpp $(GLUI_LIBS)
+
+hw2: hw2.cpp hw2.h Matrix.o
+	$(CC) $(FLAGS) -o hw2 hw2.cpp Matrix.o $(GLUI_LIBS)
 clean:
-	rm hw1
+	rm hw2
