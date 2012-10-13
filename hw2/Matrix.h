@@ -16,6 +16,7 @@ class Matrix
 	Matrix(void);
 	~Matrix(void);
 	float elements[4][4];
-    private:
+	void Vector( float vector[4] );
+    /*private:*/
 	int rows, columns;
 };

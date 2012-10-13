@@ -12,6 +12,14 @@ Matrix::Matrix(float elements[4][4]){
     this->columns = 4;
 }
 
+void Matrix::Vector( float vector[4] ){
+    for(int column = 0; column<4; column++){
+	elements[0][column] = vector[column];
+    }
+    this->rows = 1;
+    this->columns = 4;
+}
+
 Matrix* Matrix::Multiply(Matrix* matrix){
     if(this->columns != matrix->rows){
 	/*Throw an error!*/
@@ -46,8 +54,16 @@ float Matrix::DotProduct(Matrix* matrix_a, Matrix* matrix_b, int row, int column
 
 Matrix* Matrix::Homogenize(Matrix* matrix)
 {
-    Matrix* ret = new Matrix();
-    return ret;
+    float elements[matrix->rows][matrix->columns];
+    float divisor = matrix->elements[matrix->rows-1][matrix->columns-1];
+    for(int row = 0; row < matrix->rows; row++){
+	for(int column = 0; column < matrix->columns; column++){
+	    //elements[row][column] = (matrix->elements[row][column])/divisor;
+	    matrix->elements[row][column] = (matrix->elements[row][column])/divisor;
+	}
+    }
+
+    return matrix;
 }
 
 Matrix::Matrix(void)
@@ -65,10 +81,10 @@ string Matrix::ToString(){
 
     string matrixString = "";
 
-    for(int row=0;row<4;row++){
-	for(int column=0;column<4;column++){
+    for(int row=0;row<this->rows;row++){
+	for(int column=0;column<this->columns;column++){
 	    float matrixElement = this->elements[row][column];
-	    cout << fixed << setprecision(2) << matrixElement << "\t\t";
+	    cout << fixed << setprecision(3) << matrixElement << "\t\t";
 	}
 
 	 

@@ -86,11 +86,67 @@ void display(){
     glVertex2f(5, square_top-5);
     glEnd();
 
-    /******************
-     * Drawing Lines *
-     * ***************/
+    /****************
+     * Drawing Cube *
+     * *************/
+
+    glColor3f(0.5,0.7,0.7);
+    draw_line(vertices[0], vertices[1]);
+    glColor3f(0.5,0.7,0.7);
+    draw_line(vertices[0], vertices[2]);
+    glColor3f(0.5,0.7,0.7);
+    draw_line(vertices[0], vertices[4]);
+    //draw_line(vertices[0], vertices[6]);
+    glColor3f(0.7,0.9,0.9);
+    draw_line(vertices[1], vertices[3]);
+    glColor3f(0.6,0.8,0.8);
+    draw_line(vertices[1], vertices[5]);
+    glColor3f(0.7,0.9,0.9);
+    draw_line(vertices[2], vertices[3]);
+    glColor3f(0.6,0.8,0.8);
+    draw_line(vertices[2], vertices[6]);
+    glColor3f(0.8,1.0,1.0);
+    draw_line(vertices[3], vertices[7]);
+    glColor3f(0.6,0.8,0.8);
+    draw_line(vertices[4], vertices[5]);
+    glColor3f(0.6,0.8,0.8);
+    draw_line(vertices[4], vertices[6]);
+    glColor3f(0.9,1.0,1.0);
+    draw_line(vertices[1], vertices[7]);
+    glColor3f(1.0,1.0,1.0);
+    draw_line(vertices[5], vertices[7]);
+    glColor3f(1.0,1.0,1.0);
+    draw_line(vertices[6], vertices[7]);
+
 
     glutSwapBuffers();
+
+}
+
+void draw_line(float v_1[3], float v_2[3]){
+
+    Matrix* m1 = new Matrix();
+    float v1_vector[4] ;
+    v1_vector[0] = v_1[0];
+    v1_vector[1] = v_1[1];
+    v1_vector[2] = v_1[2];
+    v1_vector[3] = 1;
+    m1 ->Vector( v1_vector );
+    m1 = FullViewPipeLine(m1);
+
+    Matrix* m2 = new Matrix();
+    float v2_vector[4] ;
+    v2_vector[0] = v_2[0];
+    v2_vector[1] = v_2[1];
+    v2_vector[2] = v_2[2];
+    v2_vector[3] = 1;
+    m2->Vector( v2_vector );
+    m2 = FullViewPipeLine(m2);
+
+    glBegin(GL_LINES);
+    glVertex2f(m1->elements[0][0], m1->elements[0][1]);
+    glVertex2f(m2->elements[0][0], m2->elements[0][1]);
+    glEnd();
 }
 
 /*********************/
@@ -175,8 +231,8 @@ void calc_v_matrix(){
     float b_z = lookat_y - eye_y;
     float c_z = lookat_z - eye_z;
 
-    float a_x = -a_z;
-    float b_x = b_z;
+    float a_x = b_z;
+    float b_x = -a_z;
     float c_x = 0;
 
     float r = sqrtf( (a_x*a_x) + (b_x * b_x) );
@@ -188,30 +244,32 @@ void calc_v_matrix(){
 			     {0, 0, 1, 0},
 			     {-a_v, -b_v, -c_v, 1} };
 
-    /*************************************
-     *        FINISH THESE MATRICES      *
-     ************************************/
-     
-    float elements2[4][4] = { {1, 0, 0, 0},
-			     {0, 1, 0, 0},
+    float elements2[4][4] = { {a_x/r, -b_x/r, 0, 0},
+			     {b_x/r, a_x/r, 0, 0},
 			     {0, 0, 1, 0},
-			     {-a_v, -b_v, -c_v, 1} };
-    float elements3[4][4] = { {1, 0, 0, 0},
+			     {0, 0, 0, 1} };
+
+    float elements3[4][4] = { {r/R, 0, -c_x/R, 0},
 			     {0, 1, 0, 0},
-			     {0, 0, 1, 0},
-			     {-a_v, -b_v, -c_v, 1} };
+			     {c_x/R, 0, r/R, 0},
+			     {0, 0, 0, 1} };
+
     float elements4[4][4] = { {1, 0, 0, 0},
-			     {0, 1, 0, 0},
-			     {0, 0, 1, 0},
-			     {-a_v, -b_v, -c_v, 1} };
+			     {0, (c_z*R)/h, (b_z*a_x-a_z*b_x)/h, 0},
+			     {0, (a_z*b_x-b_z*a_x)/h, c_z*R/h, 0},
+			     {0, 0, 0, 1} };
+
     float elements5[4][4] = { {1, 0, 0, 0},
 			     {0, 1, 0, 0},
 			     {0, 0, 1, 0},
-			     {-a_v, -b_v, -c_v, 1} };
+			     {0, 0, 0, 1} };
 
     Matrix* matrix = new Matrix(elements1);
-    v_matrix = matrix->Multiply(new Matrix(elements2));
-    v_matrix->ToString();
+    matrix = matrix->Multiply(new Matrix(elements2));
+    matrix = matrix->Multiply(new Matrix(elements3));
+    matrix = matrix->Multiply(new Matrix(elements4));
+    matrix = matrix->Multiply(new Matrix(elements5));
+    v_matrix = matrix;
 }
 
 void calc_p_matrix(){
@@ -246,11 +304,18 @@ void calc_w_matrix(){
 }
 
 Matrix* FullViewPipeLine(Matrix* input_coordinates ){
+    //output is really just a vector
     Matrix* output = new Matrix();
+    //printf("output rows and columns: %d, %d\n", output->rows, output->columns);
     output = input_coordinates->Multiply(v_matrix);
+    //printf("output rows and columns: %d, %d\n", output->rows, output->columns);
     output = output->Multiply(p_matrix);
+    //printf("output rows and columns: %d, %d\n", output->rows, output->columns);
     output = output->Multiply(w_matrix);
+    //printf("output rows and columns: %d, %d\n", output->rows, output->columns);
     output = output->Homogenize(output);
+    //printf("output rows and columns: %d, %d\n", output->rows, output->columns);
+    //output->ToString();
     return output;
 }
 

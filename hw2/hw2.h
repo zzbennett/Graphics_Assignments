@@ -29,7 +29,7 @@ int global_h = INITIAL_HEIGHT;
 
 float cube_size = 10.0;
 
-GLfloat vertices[][3] = {   {0,0,0}, /*0*/
+GLfloat vertices[8][3] = {   {0,0,0}, /*0*/
 			    {0,cube_size, 0}, /*1*/
 			    {cube_size, 0, 0}, /*2*/
 			    {cube_size, cube_size, 0}, /*3*/
@@ -38,9 +38,9 @@ GLfloat vertices[][3] = {   {0,0,0}, /*0*/
 			    {cube_size, 0, cube_size}, /*6*/
 			    {cube_size, cube_size, cube_size} /*7*/ };
 			    
-float eye_x = 10.0;
-float eye_y = 10.0;
-float eye_z = 10.0;
+float eye_x = 18.0;
+float eye_y = 20.0;
+float eye_z = 15.0;
 
 
 float lookat_x = 0;
@@ -67,4 +67,6 @@ void calc_w_matrix();
 
 float up_vector[3] = {0, 0, 1};
 
-/*void testMatrices();*/
+Matrix* FullViewPipeLine(Matrix* input_coordinates);
+void draw_line(float v_1[3], float v_2[3]);
+
