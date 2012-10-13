@@ -143,11 +143,13 @@ void draw_line(float v_1[3], float v_2[3]){
     m2->Vector( v2_vector );
     m2 = FullViewPipeLine(m2);
 
+
     glBegin(GL_LINES);
     glVertex2f(m1->elements[0][0], m1->elements[0][1]);
     glVertex2f(m2->elements[0][0], m2->elements[0][1]);
     glEnd();
 }
+
 
 /*********************/
 /*CALL BACK FUNCTIONS*/
