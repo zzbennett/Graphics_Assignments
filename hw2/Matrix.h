@@ -1,3 +1,8 @@
+#include<string>
+#include<sstream>
+#include<iomanip>
+#include<iostream>
+
 using namespace std;
 
 class Matrix 
@@ -7,6 +12,7 @@ class Matrix
 	Matrix* Multiply(Matrix* matrix);
 	Matrix* Homogenize(Matrix* matrix);
 	float DotProduct(Matrix* matrix_a, Matrix* matrix_b, int row, int column);
+	string ToString();
 	Matrix(void);
 	~Matrix(void);
 	float elements[4][4];

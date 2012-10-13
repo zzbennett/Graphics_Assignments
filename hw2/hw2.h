@@ -2,7 +2,9 @@
 #include<stdio.h>
 #include<GL/glut.h>
 #include<GL/glui.h>
+#include<string>
 #include<math.h>
+#include<iostream>
 #include"Matrix.h"
 
 #define true 1
@@ -36,9 +38,9 @@ GLfloat vertices[][3] = {   {0,0,0}, /*0*/
 			    {cube_size, 0, cube_size}, /*6*/
 			    {cube_size, cube_size, cube_size} /*7*/ };
 			    
-float eye_x = 50.0;
-float eye_y = 26.375;
-float eye_z = 23.41;
+float eye_x = 10.0;
+float eye_y = 10.0;
+float eye_z = 10.0;
 
 
 float lookat_x = 0;
@@ -48,8 +50,9 @@ float lookat_z = 0;
 float clipping_param = 0;
 float clipping_yon = 15;
 float clipping_hither = 5;
+float viewplane = 10;
 
-GLfloat theta;
+GLfloat theta = 40;
 
 int square_top;
 int square_right; 
@@ -62,6 +65,6 @@ void calc_v_matrix();
 void calc_p_matrix();
 void calc_w_matrix();
 
-int up_vector[3] = {0, 0, 1};
+float up_vector[3] = {0, 0, 1};
 
-void testMatrices();
+/*void testMatrices();*/

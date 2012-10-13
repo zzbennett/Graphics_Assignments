@@ -32,13 +32,13 @@ void setupViewport(int w, int h) {
 void init() {
 
    v_matrix = new Matrix();
-   calc_v_matrix;
+   calc_v_matrix();
 
    p_matrix = new Matrix();
-   calc_p_matrix;
+   calc_p_matrix();
 
    w_matrix = new Matrix();
-   calc_w_matrix;
+   calc_w_matrix();
 
     glClearColor(0.0, 0.8, 0.8, 0.0);
     setupViewport(INITIAL_WIDTH, INITIAL_HEIGHT);
@@ -167,21 +167,81 @@ void spinDisplay() {
 }*/
 
 void calc_v_matrix(){
+    float a_v = eye_x;
+    float b_v = eye_y;
+    float c_v = eye_z;
 
+    float a_z = lookat_x - eye_x;
+    float b_z = lookat_y - eye_y;
+    float c_z = lookat_z - eye_z;
 
-    Matrix* matrix;
-    v_matrix = matrix;
+    float a_x = -a_z;
+    float b_x = b_z;
+    float c_x = 0;
+
+    float r = sqrtf( (a_x*a_x) + (b_x * b_x) );
+    float R = sqrtf( (a_x*a_x) + (b_x * b_x) + (c_x+c_x) );
+    float h = r*sqrtf( (a_z*a_z) + (b_z * b_z) + (c_z * c_z) );
+
+    float elements1[4][4] = { {1, 0, 0, 0},
+			     {0, 1, 0, 0},
+			     {0, 0, 1, 0},
+			     {-a_v, -b_v, -c_v, 1} };
+
+    /*************************************
+     *        FINISH THESE MATRICES      *
+     ************************************/
+     
+    float elements2[4][4] = { {1, 0, 0, 0},
+			     {0, 1, 0, 0},
+			     {0, 0, 1, 0},
+			     {-a_v, -b_v, -c_v, 1} };
+    float elements3[4][4] = { {1, 0, 0, 0},
+			     {0, 1, 0, 0},
+			     {0, 0, 1, 0},
+			     {-a_v, -b_v, -c_v, 1} };
+    float elements4[4][4] = { {1, 0, 0, 0},
+			     {0, 1, 0, 0},
+			     {0, 0, 1, 0},
+			     {-a_v, -b_v, -c_v, 1} };
+    float elements5[4][4] = { {1, 0, 0, 0},
+			     {0, 1, 0, 0},
+			     {0, 0, 1, 0},
+			     {-a_v, -b_v, -c_v, 1} };
+
+    Matrix* matrix = new Matrix(elements1);
+    v_matrix = matrix->Multiply(new Matrix(elements2));
+    v_matrix->ToString();
 }
 
 void calc_p_matrix(){
 
-    Matrix* matrix;
+    float elements[4][4] = { {viewplane, 0, 0, 0},
+			     {0, viewplane, 0, 0},
+			     {0, 0, (clipping_yon/(clipping_yon-clipping_hither)), 1},
+			     {0, 0, ((-clipping_hither*clipping_yon)/(clipping_yon - clipping_hither)), 0}};
+    Matrix* matrix = new Matrix(elements);
     p_matrix = matrix;
+    
 }
 
 void calc_w_matrix(){
+    float w_r = square_right;
+    float w_l = 0;
+    float w_t = square_top;
+    float w_b = 0;
 
-    Matrix* matrix;
+    float v_l, v_b; 
+    v_l = v_b = -viewplane*tan(theta);
+    float v_r, v_t;
+    v_r = v_t = -v_l;
+
+
+    float elements[4][4] = { {(w_r - w_l)/(v_r-v_l), 0, 0, 0},
+			     {0, (w_t-w_b)/(v_t-v_b), 0, 0},
+			     {0, 0, 1, 0},
+			     {(w_l*v_r-v_l*w_r)/(v_r-v_l), (w_b*v_t-v_b*w_t)/(v_t-v_b), 0, 1}};
+    Matrix* matrix = new Matrix(elements);
     w_matrix = matrix;
 }
 
@@ -338,7 +398,7 @@ int main(int argc, char **argv) {
     GLUI_Spinner *theta_spinner= new GLUI_Spinner(
 	    control_panel,
 	    "THETA",
-	    GLUI_SPINNER_INT,
+	    GLUI_SPINNER_FLOAT,
 	    &theta,
 	    0,
 	    theta_callback);
@@ -350,30 +410,34 @@ int main(int argc, char **argv) {
 
     control_panel->set_main_gfx_window(main_window);
     GLUI_Master.set_glutIdleFunc(spinDisplay);
-    testMatrices();
+    //testMatrices();
     glutMainLoop();
     return EXIT_SUCCESS;
 
 } 
 
+/*
 void testMatrices(){
-    float matrixAElements[4][4] = { { 1, 2, 3, 4},
-				    { 1, 2, 3, 4},
-				    { 1, 2, 3, 4},
-				    { 1, 2, 3, 4} };
+    float matrixAElements[4][4] = { { 1, 1, 1, 1},
+				    { 2, 2, 2, 2},
+				    { 3, 3, 3, 3},
+				    { 4, 4, 4, 4} };
 
     float matrixBElements[4][4] = { { 1, 2, 3, 4},
 				    { 1, 2, 3, 4},
 				    { 1, 2, 3, 4},
 				    { 1, 2, 3, 4} };
+
     Matrix* A = new Matrix(matrixAElements);
     Matrix* B = new Matrix(matrixBElements);
 
-    float result = A->DotProduct( A, B, 1, 1);
-    printf("Dot product result is: %f\n", result);
+    Matrix* result = A->Multiply(B);
+
+
+    cout << result->ToString() << endl;
 
 }
-
+*/
 
 
 

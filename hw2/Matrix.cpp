@@ -22,7 +22,6 @@ Matrix* Matrix::Multiply(Matrix* matrix){
     for(int row = 0; row<this->rows; row++){
 	for(int column = 0; column<matrix->columns; column++){
 	    ret->elements[row][column] = Matrix::DotProduct(this, matrix, row, column);
-	    
 	}
     }
 	    
@@ -37,12 +36,10 @@ float Matrix::DotProduct(Matrix* matrix_a, Matrix* matrix_b, int row, int column
 	      < a b c > * < r > == aq + br + cs
 			    s			    */
     float sum = 0;
-    for(int i = 0; i<matrix_a->columns; i++){
-	for(int j = 0; j<matrix_b->rows; j++){
-	    printf("matrix_a->elements[row][i] is %f, matrix_b->elements[j][column] is %f\n", 
-		    matrix_a->elements[row][i], matrix_b->elements[j][column] );
+    int i;
+    int j;
+    for(i = 0, j = 0; i<matrix_a->columns; i++, j++){
 	    sum += ((matrix_a->elements[row][i]) * (matrix_b->elements[j][column]));
-	}
     }
     return sum;
 }
@@ -62,4 +59,21 @@ Matrix::Matrix(void)
 
 Matrix::~Matrix(void)
 {
+}
+
+string Matrix::ToString(){
+
+    string matrixString = "";
+
+    for(int row=0;row<4;row++){
+	for(int column=0;column<4;column++){
+	    float matrixElement = this->elements[row][column];
+	    cout << fixed << setprecision(2) << matrixElement << "\t\t";
+	}
+
+	 
+	cout << "\n" << endl;
+    }
+
+    return matrixString;
 }
