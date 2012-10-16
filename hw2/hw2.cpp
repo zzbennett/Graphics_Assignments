@@ -15,14 +15,16 @@
 void setupViewport(int w, int h) {
 
     /*square bottom and square left are 0, 0*/
-    square_top = (int) h-(h*2*SQUARE_OFFSET) - h*SQUARE_OFFSET;
-    square_right = (int) w-(w*2*SQUARE_OFFSET) - w*SQUARE_OFFSET;
+    square_top = (int) h-(h*SQUARE_OFFSET);
+    square_right = (int) w-(w*SQUARE_OFFSET);
+    square_bottom = (int) (SQUARE_OFFSET*w);
+    square_left = (int) (SQUARE_OFFSET*h);
 
     //glViewport(square_bottom, square_left, square_right, square_top); 
-    glViewport(SQUARE_OFFSET*w,SQUARE_OFFSET*h, w-(w*2*SQUARE_OFFSET), h-(h*2*SQUARE_OFFSET)); 
+    glViewport(0, 0, w, h); 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluOrtho2D(0, square_right, 0, square_top);
+    gluOrtho2D(0, w, 0, h);
     //gluOrtho2D(0.0, XSCALE*w/INITIAL_WIDTH*0.1, 0.0, h*YSCALE/INITIAL_HEIGHT );
 
 }
@@ -72,58 +74,46 @@ void display(){
     glColor3f(1.0,0.2,1.0);
 
     glBegin(GL_POLYGON);
-    glVertex2f(0, 0);
-    glVertex2f(square_right, 0);
+    glVertex2f(square_left, square_bottom);
+    glVertex2f(square_right, square_bottom);
     glVertex2f(square_right, square_top);
-    glVertex2f(0, square_top);
+    glVertex2f(square_left, square_top);
     glEnd();
 
     glColor3f(1.0,0.5,1.0);
     glBegin(GL_POLYGON);
-    glVertex2f(5, 5);
-    glVertex2f(square_right-5, 5);
-    glVertex2f(square_right-5, square_top-5);
-    glVertex2f(5, square_top-5);
+    glVertex2f((square_left+clipping_param), (square_bottom+clipping_param));
+    glVertex2f((square_right-clipping_param), (square_bottom+clipping_param));
+    glVertex2f((square_right-clipping_param), (square_top-clipping_param));
+    glVertex2f((square_left+clipping_param), (square_top-clipping_param));
     glEnd();
 
     /****************
      * Drawing Cube *
      * *************/
 
-    glColor3f(0.5,0.7,0.7);
-    draw_line(vertices[0], vertices[1]);
-    glColor3f(0.5,0.7,0.7);
-    draw_line(vertices[0], vertices[2]);
-    glColor3f(0.5,0.7,0.7);
-    draw_line(vertices[0], vertices[4]);
-    //draw_line(vertices[0], vertices[6]);
-    glColor3f(0.7,0.9,0.9);
-    draw_line(vertices[1], vertices[3]);
-    glColor3f(0.6,0.8,0.8);
-    draw_line(vertices[1], vertices[5]);
-    glColor3f(0.7,0.9,0.9);
-    draw_line(vertices[2], vertices[3]);
-    glColor3f(0.6,0.8,0.8);
-    draw_line(vertices[2], vertices[6]);
-    glColor3f(0.8,1.0,1.0);
-    draw_line(vertices[3], vertices[7]);
-    glColor3f(0.6,0.8,0.8);
-    draw_line(vertices[4], vertices[5]);
-    glColor3f(0.6,0.8,0.8);
-    draw_line(vertices[4], vertices[6]);
-    glColor3f(0.9,1.0,1.0);
-    draw_line(vertices[1], vertices[7]);
-    glColor3f(1.0,1.0,1.0);
-    draw_line(vertices[5], vertices[7]);
-    glColor3f(1.0,1.0,1.0);
-    draw_line(vertices[6], vertices[7]);
+    draw_line(vertices[0], vertices[1], 0.5,0.7,0.7);
+    draw_line(vertices[0], vertices[2], 0.5,0.7,0.7);
+    draw_line(vertices[0], vertices[4], 0.5,0.7,0.7);
+    draw_line(vertices[1], vertices[3], 0.7,0.9,0.9);
+    draw_line(vertices[1], vertices[5], 0.6,0.8,0.8);
+    draw_line(vertices[2], vertices[3], 0.7,0.9,0.9);
+    draw_line(vertices[2], vertices[6], 0.6,0.8,0.8);
+    draw_line(vertices[3], vertices[7], 0.8,1.0,1.0);
+    draw_line(vertices[4], vertices[5], 0.6,0.8,0.8);
+    draw_line(vertices[4], vertices[6], 0.6,0.8,0.8);
+    draw_line(vertices[1], vertices[7], 0.9,1.0,1.0);
+    draw_line(vertices[5], vertices[7], 1.0,1.0,1.0);
+    draw_line(vertices[6], vertices[7], 1.0,1.0,1.0);
 
 
     glutSwapBuffers();
 
 }
 
-void draw_line(float v_1[3], float v_2[3]){
+void draw_line(float v_1[3], float v_2[3], float r, float g, float b){
+
+    glColor3f(r, g, b);
 
     Matrix* m1 = new Matrix();
     float v1_vector[4] ;
@@ -143,69 +133,188 @@ void draw_line(float v_1[3], float v_2[3]){
     m2->Vector( v2_vector );
     m2 = FullViewPipeLine(m2);
 
+    Matrix* clipped_line = new Matrix();
 
+    clipped_line->Line(m1, m2);
+
+    clipped_line = clip_edges(clipped_line);
+
+    if(!clipped_line->isEmpty){
     glBegin(GL_LINES);
-    glVertex2f(m1->elements[0][0], m1->elements[0][1]);
-    glVertex2f(m2->elements[0][0], m2->elements[0][1]);
+    glVertex2f(clipped_line->elements[0][0], clipped_line->elements[0][1]);
+    glVertex2f(clipped_line->elements[1][0], clipped_line->elements[1][1]);
     glEnd();
-}
-
-
-/*********************/
-/*CALL BACK FUNCTIONS*/
-/*********************/
-
-
-/*call back function for eye position  user control*/
-void eye_pos_callback(int ID) {
-
-    calc_v_matrix();
-    display();
+    }
 
 }
 
-/*call back function for cube size user control*/
-void cube_size_callback(int ID) {
+Matrix* clip_edges(Matrix* line){
+    line = check_line_for_clipping(line, HITHER);
+    line = check_line_for_clipping(line, YON);
+    line = check_line_for_clipping(line, LEFT);
+    line = check_line_for_clipping(line, TOP);
+    line = check_line_for_clipping(line, RIGHT);
+    line = check_line_for_clipping(line, BOTTOM);
+    return line;
+}
+Matrix* check_line_for_clipping(Matrix* line, int plane){
+    if(line->isEmpty)
+	return line;
+    float v1[3] = {line->elements[0][0], line->elements[0][1], line->elements[0][2]};
+    float v2[3] = {line->elements[1][0], line->elements[1][1], line->elements[1][2]};
 
-    /*adjust vertices*/
-    vertices[1][1] = cube_size; /*1*/
-    vertices[2][0] = cube_size; /*2*/
-    vertices[3][0] = cube_size; /*3*/
-    vertices[3][1] = cube_size; /*3*/
-    vertices[4][2] = cube_size; /*4*/
-    vertices[5][1] = cube_size; /*5*/
-    vertices[5][2] = cube_size; /*5*/
-    vertices[6][0] = cube_size; /*6*/
-    vertices[6][2] = cube_size; /*6*/
-    vertices[7][0] = cube_size; /*7*/
-    vertices[7][1] = cube_size; /*7*/
-    vertices[7][2] = cube_size; /*7*/
-    display();
+    //the line is off the screen
+    if(is_clipped(v1, plane) && is_clipped(v2, plane)){
+	line = new Matrix();
+	return line;
+    }
+    //the line is partially on the screen
+    if(is_clipped(v1, plane) ^ is_clipped(v2, plane)){
+	//find intersection of line and edge
+	//if v2 is off the screen, flip v1 and v2
+	if(is_clipped(v2, plane)){
+	    float temp[3] = {v2[0], v2[1], v2[2]};
+	    v2[0] = v1[0];
+	    v2[1] = v1[1];
+	    v2[2] = v1[2];
 
+	    v1[0] = temp[0];
+	    v1[1] = temp[1];
+	    v1[2] = temp[2];
+	}
+
+	puts("before find_intersection");
+	line->ToString();
+	line = find_intersection(v1, v2, plane);
+	puts("after find_intersection");
+	line->ToString();
+
+	return line;
+
+    }
+    //the line is on the screen
+    if(!(is_clipped(v1, plane) && is_clipped(v2, plane) )){
+	return line;
+    }
 }
 
-/*call back function for look at point user control*/
-void lookat_callback(int ID) {
-
-    calc_v_matrix();
-    display();
-
+int is_clipped(float v[3], int plane){
+    switch(plane){
+	case LEFT:
+	    if(v[0] < square_left+clipping_param )
+		return 1;
+	    break;
+	case RIGHT:
+	    if(v[0] > square_right-clipping_param)
+		return 1;
+	    break;
+	case BOTTOM:
+	    if(v[1] < square_bottom+clipping_param)
+		return 1;
+	    break;
+	case TOP:
+	    if(v[1] > square_top-clipping_param)
+		return 1;
+	    break;
+	case YON:
+	    if(v[2] > 1){
+		return 1;
+	    }
+	    break;
+	case HITHER:
+	    if(v[2] < 0){
+		return 1;
+	    }
+	    break;
+    }
+    return 0;
 }
 
-/*call back function for theta user control*/
-void theta_callback(int ID) {
+Matrix* find_intersection(float v1[4], float v2[4], int plane){
+    Matrix* line = new Matrix();
+    float t;
 
-    display();
+    float p0_x = v1[0];
+    float p0_y = v1[1];
+    float p0_z = v1[2];
 
+    float v_x = v2[0]-v1[0];
+    float v_y = v2[1]-v1[1];
+    float v_z = v2[2]-v1[2];
+
+    float new_x;
+    float new_y;
+    float new_z;
+
+
+    switch(plane){
+	case LEFT:
+	    t = ((square_left+clipping_param)-p0_x)/v_x;
+	    new_x = square_left+clipping_param;
+	    new_y = p0_y + v_y*t;
+	    new_z = p0_z + v_z*t;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+	case RIGHT:
+	    t = ((square_right-clipping_param)-p0_x)/v_x;
+	    new_x = square_right-clipping_param;
+	    new_y = p0_y + v_y*t;
+	    new_z = p0_z + v_z*t;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+	case BOTTOM:
+	    t = ((square_bottom+clipping_param)-p0_y)/v_y;
+	    new_x = p0_x + v_x*t;
+	    new_y = square_bottom+clipping_param;
+	    new_z = p0_z + v_z*t;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+	case TOP:
+	    t = ((square_top-clipping_param)-p0_y)/v_y;
+	    new_x = p0_x + v_x*t;
+	    new_y = square_top-clipping_param;
+	    new_z = p0_z + v_z*t;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+	case YON:
+	    t = (1-p0_z)/v_z;
+	    printf("clipping yon!! t is %f\n", t);
+	    new_x = p0_x + v_x*t;
+	    new_y = p0_y + v_y*t;
+	    new_z = 1;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+	case HITHER:
+	    t = (0-p0_z)/v_z;
+	    new_x = p0_x + v_x*t;
+	    new_y = p0_y + v_y*t;
+	    new_z = 0;
+	    v1[0] = new_x;
+	    v1[1] = new_y;
+	    v1[2] = new_z;
+	    line->Line(v1, v2);
+	    break;
+    }
+
+    return line;
 }
 
-/*call back function for theta user control*/
-void clipping_callback(int ID) {
 
-    calc_p_matrix();
-    display();
-
-}
 
 /***************/
 /*IDLE FUNCTION*/
@@ -286,10 +395,10 @@ void calc_p_matrix(){
 }
 
 void calc_w_matrix(){
-    float w_r = square_right;
-    float w_l = 0;
-    float w_t = square_top;
-    float w_b = 0;
+    float w_r = square_right-clipping_param;
+    float w_l = square_left+clipping_param;
+    float w_t = square_top-clipping_param;
+    float w_b = square_bottom+clipping_param;
 
     float v_l, v_b; 
     v_l = v_b = -viewplane*tan(theta);
@@ -304,6 +413,10 @@ void calc_w_matrix(){
     Matrix* matrix = new Matrix(elements);
     w_matrix = matrix;
 }
+
+/***************************
+ * Calc Full View Pipeline *
+ * *************************/
 
 Matrix* FullViewPipeLine(Matrix* input_coordinates ){
     //output is really just a vector
@@ -321,6 +434,66 @@ Matrix* FullViewPipeLine(Matrix* input_coordinates ){
     return output;
 }
 
+
+/*********************/
+/*CALL BACK FUNCTIONS*/
+/*********************/
+
+/*call back function for eye position  user control*/
+void eye_pos_callback(int ID) {
+
+    calc_v_matrix();
+    display();
+
+}
+
+/*call back function for cube size user control*/
+void cube_size_callback(int ID) {
+
+    /*adjust vertices*/
+    vertices[1][1] = cube_size; /*1*/
+    vertices[2][0] = cube_size; /*2*/
+    vertices[3][0] = cube_size; /*3*/
+    vertices[3][1] = cube_size; /*3*/
+    vertices[4][2] = cube_size; /*4*/
+    vertices[5][1] = cube_size; /*5*/
+    vertices[5][2] = cube_size; /*5*/
+    vertices[6][0] = cube_size; /*6*/
+    vertices[6][2] = cube_size; /*6*/
+    vertices[7][0] = cube_size; /*7*/
+    vertices[7][1] = cube_size; /*7*/
+    vertices[7][2] = cube_size; /*7*/
+    display();
+
+}
+
+/*call back function for look at point user control*/
+void lookat_callback(int ID) {
+
+    calc_v_matrix();
+    display();
+
+}
+
+/*call back function for theta user control*/
+void theta_callback(int ID) {
+
+    calc_w_matrix();
+
+    display();
+
+}
+
+/*call back function for theta user control*/
+void clipping_callback(int ID) {
+
+    calc_p_matrix();
+    display();
+
+}
+/*********
+ * MAIN *
+ * ******/
 int main(int argc, char **argv) {
 
     /**********************/
@@ -400,7 +573,7 @@ int main(int argc, char **argv) {
     GLUI_Rollout *lookat_rollout = new GLUI_Rollout(
 	    control_panel,
 	    "Looking At",
-	    false );
+	    true );
 
     /*set lookat_x*/
     GLUI_Spinner *lookat_x_spinner= new GLUI_Spinner(
@@ -438,7 +611,7 @@ int main(int argc, char **argv) {
     GLUI_Rollout *clipping_rollout = new GLUI_Rollout(
 	    control_panel,
 	    "Clipping Parameters",
-	    false );
+	    true );
     GLUI_Spinner *clipping_spinner= new GLUI_Spinner(
 	    clipping_rollout,
 	    "Clip Edges",

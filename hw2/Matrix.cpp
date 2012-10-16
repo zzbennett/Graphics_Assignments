@@ -10,6 +10,7 @@ Matrix::Matrix(float elements[4][4]){
 
     this->rows = 4;
     this->columns = 4;
+    this->isEmpty = 0;
 }
 
 void Matrix::Vector( float vector[4] ){
@@ -18,6 +19,33 @@ void Matrix::Vector( float vector[4] ){
     }
     this->rows = 1;
     this->columns = 4;
+    this->isEmpty = 0;
+}
+
+/*p1 and p2 are matrices representing point 1 and 2*/
+void Matrix::Line( Matrix* p1, Matrix* p2){
+
+    for(int column = 0; column<3; column++){
+	this->elements[0][column] = p1->elements[0][column];
+	this->elements[1][column] = p2->elements[0][column];
+    }
+
+    this->rows = 2;
+    this->columns = 3;
+    this->isEmpty = 0;
+}
+
+/*p1 and p2 are matrices representing point 1 and 2*/
+void Matrix::Line( float p1[3], float p2[3]){
+
+    for(int column = 0; column<3; column++){
+	this->elements[0][column] = p1[column];
+	this->elements[1][column] = p2[column];
+    }
+
+    this->rows = 2;
+    this->columns = 3;
+    this->isEmpty = 0;
 }
 
 Matrix* Matrix::Multiply(Matrix* matrix){
@@ -70,6 +98,7 @@ Matrix::Matrix(void)
 {
     this->rows = 0;
     this->columns = 0;
+    this->isEmpty = 1;
 
 }
 

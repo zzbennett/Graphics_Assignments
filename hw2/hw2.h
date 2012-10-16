@@ -47,15 +47,32 @@ float lookat_x = 0;
 float lookat_y = 0;
 float lookat_z = 0;
 
-float clipping_param = 0;
-float clipping_yon = 15;
-float clipping_hither = 5;
+float clipping_param = 5;
+float clipping_yon = 100; 
+float clipping_hither = 0.5;
 float viewplane = 10;
 
 GLfloat theta = 40;
 
 int square_top;
+int square_bottom;
 int square_right; 
+int square_left;
+
+enum PLANE {
+    LEFT,
+    RIGHT,
+    BOTTOM,
+    TOP,
+    YON,
+    HITHER
+};
+
+enum CLIP {
+    IGNORE,
+    DRAW,
+    PARTIAL
+};
 
 Matrix* v_matrix;
 Matrix* p_matrix;
@@ -68,5 +85,9 @@ void calc_w_matrix();
 float up_vector[3] = {0, 0, 1};
 
 Matrix* FullViewPipeLine(Matrix* input_coordinates);
-void draw_line(float v_1[3], float v_2[3]);
+void draw_line(float v_1[3], float v_2[3], float r, float g, float b);
+Matrix* clip_edges(Matrix* line);
+Matrix* check_line_for_clipping(Matrix* line, int plane);
+int is_clipped(float v[3], int plane);
+Matrix* find_intersection(float v1[4], float v2[4], int plane);
 
