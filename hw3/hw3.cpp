@@ -19,6 +19,13 @@ GLfloat LEG_RADIUS = 0.4;
 GLfloat UPPER_LEG_LENGTH = 4.0, LOWER_LEG_LENGTH = 4.0;
 GLfloat LULX = -2.0, LULY = 0.0, LLLY = -4.0;
 GLfloat RULX = 2.0, RULY = 0.0, RLLY = -4.0;
+
+
+GLfloat RIGHT_WHEELX = 0.0, RIGHT_WHEELY = 5.0
+GLfloat LEFT_WHEELX = 1.0, LEFT_WHEELY = 5.0
+
+
+
 typedef struct materialStruct {
   GLfloat ambient[4];
   GLfloat diffuse[4];
@@ -57,6 +64,18 @@ lightingStruct *currentLighting;
 GLfloat theta[] = {65.0, 0.0, 0.0, -42.0, -12.0, -33.0, -48.0,18.0, 74.0, -14.0, 11.0};
 
 GLUquadricObj *p, *q;  
+
+
+/*MY STUFF*/
+
+GLfloat X = 5.0;
+GLfloat Y = 10.0;
+GLfloat Z = 40.0;
+
+int speed = 5; /*scale from 0 - 10 */
+void eye_callback(int ID);
+GLfloat spin_theta = 0.0;
+
 int main_window;
 
 
@@ -65,7 +84,7 @@ void init() {
   glColor3f(0.0, 0.0, 0.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(5.0, 10.0, 40.0, 0.0, 10.0, 0.0, 0.0,  1.0, 0.0);
+  gluLookAt(X, Y, Z, 0.0, 0.0, 0.0, 0.0,  1.0, 0.0);
 }
 
 
@@ -81,6 +100,7 @@ void reshape(int w, int h) {
   glutPostWindowRedisplay(main_window);  
 }
 
+/*
 void torso() {
   glPushMatrix();
   glRotatef(-90.0, 1.0, 0.0, 0.0); 
@@ -133,6 +153,7 @@ void right_lower_leg() {
   gluCylinder(p, LEG_RADIUS, LEG_RADIUS, LOWER_LEG_LENGTH, 8, 8);
   glPopMatrix();
 }
+*/
 
 void left_upper_leg(){
   glPushMatrix();
@@ -149,16 +170,30 @@ void left_lower_leg() {
 }
 
 
+void wheels(){
+  glPushMatrix();
+  glRotatef(-90.0, 1.0, 0.0, 0.0); 
+  gluCylinder(p, TORSO_RADIUS, TORSO_RADIUS, TORSO_HEIGHT, 8, 8);
+  glPopMatrix();
+}
+
+
 void display() {
+  glutSetWindow(main_window);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(X, Y, Z, 0.0, 0.0, 0.0, 0.0,  1.0, 0.0);
   glPushMatrix();
 
   /* torso */
+  /*
   glRotatef(theta[0], 0.0, 1.0, 0.0);
   torso();
+  */
  
   /* head */
+  /* 
   glPushMatrix();
   glTranslatef(0.0, HEADX, 0.0);
   glRotatef(theta[1], 1.0, 0.0, 0.0);
@@ -166,8 +201,10 @@ void display() {
   glTranslatef(0.0, HEADY, 0.0);
   head();
   glPopMatrix();
+  */
   
   /* right arm */
+  /*
   glPushMatrix();
   glTranslatef(LUAX, LUAY, 0.0);
   glRotatef(theta[3], 1.0, 0.0, 0.0);
@@ -176,8 +213,10 @@ void display() {
   glRotatef(theta[4], 1.0, 0.0, 0.0);
   right_lower_arm();
   glPopMatrix();
+  */
 
   /* left arm */
+  /*
  glPushMatrix();
   glTranslatef(RUAX, RUAY, 0.0);
   glRotatef(theta[5], 1.0, 0.0, 0.0);
@@ -186,8 +225,10 @@ void display() {
   glRotatef(theta[6], 1.0, 0.0, 0.0);
   left_lower_arm();
   glPopMatrix();
+  */
 
   /* right leg */
+  /*
   glPushMatrix();
   glTranslatef(LULX, LULY, 0.0);
   glRotatef(theta[7], 1.0, 0.0, 0.0);
@@ -196,6 +237,7 @@ void display() {
   glRotatef(theta[8], 1.0, 0.0, 0.0);
   right_lower_leg();
   glPopMatrix();
+  */
 
   /* left leg */
   glPushMatrix();
@@ -207,8 +249,26 @@ void display() {
   left_lower_leg();
   glPopMatrix();
 
+  /* wheels */
+  glPushMatrix();
+  glPopMatrix();
+
+
   glPopMatrix();
   glutSwapBuffers(); 
+}
+
+void eye_callback(int ID) {
+  display();
+}
+
+void speed_callback(int ID) {
+  display();
+}
+
+void spinDisplay() { /*This is the idle function*/
+  spin_theta += 0.01*speed;
+  display();
 }
 
 int main(int argc, char **argv) {
@@ -281,7 +341,23 @@ int main(int argc, char **argv) {
   GLUI_Spinner *bend10=new GLUI_Spinner(left_leg_rollout, "Lower Leg Angle", GLUI_SPINNER_FLOAT, &(theta[10]), 0, (GLUI_Update_CB)NULL);
   bend10->set_float_limits(0.0, 160.0, GLUI_LIMIT_CLAMP);
 
+  new GLUI_Column(control_panel, true);
+
+   GLUI_Rollout *eye_rollout = control_panel->add_rollout("Camera Position", false );
+  GLUI_Spinner *x_spin=control_panel->add_spinner_to_panel(eye_rollout, "X", GLUI_SPINNER_FLOAT, &X, 1, eye_callback);
+  x_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+  GLUI_Spinner *y_spin=control_panel->add_spinner_to_panel(eye_rollout, "Y", GLUI_SPINNER_FLOAT, &Y, 2, eye_callback);
+  y_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+  GLUI_Spinner *z_spin=control_panel->add_spinner_to_panel(eye_rollout, "Z", GLUI_SPINNER_FLOAT, &Z, 3, eye_callback);
+  z_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+
+  GLUI_Rollout *speed_rollout = new GLUI_Rollout(control_panel, "Speed", false );
+
+  GLUI_Spinner *speed_spinner= new GLUI_Spinner(speed_rollout, "Speed:", GLUI_SPINNER_INT, &speed, 0, speed_callback);
+  speed_spinner->set_int_limits(0, 10, GLUI_LIMIT_CLAMP);
+
   control_panel->set_main_gfx_window(main_window); 
+  GLUI_Master.set_glutIdleFunc(spinDisplay);
 
   glutMainLoop();
 }

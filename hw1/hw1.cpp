@@ -191,9 +191,9 @@ int main(int argc, char **argv) {
 
 
   control_panel->set_main_gfx_window(main_window);
-
   GLUI_Master.set_glutIdleFunc(spinDisplay);
   glutMainLoop();
+
   return EXIT_SUCCESS;
 
 } 
