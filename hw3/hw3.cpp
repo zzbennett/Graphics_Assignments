@@ -21,8 +21,10 @@ GLfloat LULX = -2.0, LULY = 0.0, LLLY = -4.0;
 GLfloat RULX = 2.0, RULY = 0.0, RLLY = -4.0;
 
 
-GLfloat RIGHT_WHEELX = 0.0, RIGHT_WHEELY = 5.0
-GLfloat LEFT_WHEELX = 1.0, LEFT_WHEELY = 5.0
+/* MY STUFF*/
+GLfloat RIGHT_WHEELX = 0.0, RIGHT_WHEELY = 10.0;
+GLfloat LEFT_WHEELX = 1.0, LEFT_WHEELY = 10.0;
+GLfloat WHEEL_RADIUS = 20.0, WHEEL_WIDTH = 1.0;
 
 
 
@@ -68,9 +70,9 @@ GLUquadricObj *p, *q;
 
 /*MY STUFF*/
 
-GLfloat X = 5.0;
-GLfloat Y = 10.0;
-GLfloat Z = 40.0;
+GLfloat X = 20.0;
+GLfloat Y = 5.0;
+GLfloat Z = 100.0;
 
 int speed = 5; /*scale from 0 - 10 */
 void eye_callback(int ID);
@@ -155,6 +157,7 @@ void right_lower_leg() {
 }
 */
 
+/*
 void left_upper_leg(){
   glPushMatrix();
   glRotatef(90.0, 1.0, 0.0, 0.0); 
@@ -168,12 +171,18 @@ void left_lower_leg() {
   gluCylinder(p, LEG_RADIUS, LEG_RADIUS, LOWER_LEG_LENGTH, 8, 8);
   glPopMatrix();
 }
+*/
 
 
 void wheels(){
   glPushMatrix();
-  glRotatef(-90.0, 1.0, 0.0, 0.0); 
-  gluCylinder(p, TORSO_RADIUS, TORSO_RADIUS, TORSO_HEIGHT, 8, 8);
+  glRotatef(spin_theta, 1.0, 0.0, 0.0); 
+  glRotatef(90, 0.0, 1.0, 0.0);
+  glutSolidTorus(0.5, WHEEL_RADIUS, 16, 16);
+  glPushMatrix();
+  glTranslatef(0.0, 0.0, 5.0);
+  glutSolidTorus(0.5, WHEEL_RADIUS, 16, 16);
+  glPopMatrix();
   glPopMatrix();
 }
 
@@ -240,6 +249,7 @@ void display() {
   */
 
   /* left leg */
+  /*
   glPushMatrix();
   glTranslatef(RULX, RULY, 0.0);
   glRotatef(theta[9], 1.0, 0.0, 0.0);
@@ -248,9 +258,11 @@ void display() {
   glRotatef(theta[10], 1.0, 0.0, 0.0);
   left_lower_leg();
   glPopMatrix();
+  */
 
   /* wheels */
   glPushMatrix();
+  wheels();
   glPopMatrix();
 
 
@@ -345,11 +357,11 @@ int main(int argc, char **argv) {
 
    GLUI_Rollout *eye_rollout = control_panel->add_rollout("Camera Position", false );
   GLUI_Spinner *x_spin=control_panel->add_spinner_to_panel(eye_rollout, "X", GLUI_SPINNER_FLOAT, &X, 1, eye_callback);
-  x_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+  x_spin->set_float_limits(-100.0, 100.0, GLUI_LIMIT_CLAMP);
   GLUI_Spinner *y_spin=control_panel->add_spinner_to_panel(eye_rollout, "Y", GLUI_SPINNER_FLOAT, &Y, 2, eye_callback);
-  y_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+  y_spin->set_float_limits(-100.0, 100.0, GLUI_LIMIT_CLAMP);
   GLUI_Spinner *z_spin=control_panel->add_spinner_to_panel(eye_rollout, "Z", GLUI_SPINNER_FLOAT, &Z, 3, eye_callback);
-  z_spin->set_float_limits(-50.0, 50.0, GLUI_LIMIT_CLAMP);
+  z_spin->set_float_limits(-300.0, 300.0, GLUI_LIMIT_CLAMP);
 
   GLUI_Rollout *speed_rollout = new GLUI_Rollout(control_panel, "Speed", false );
 
