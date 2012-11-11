@@ -70,9 +70,12 @@ GLUquadricObj *p, *q;
 
 /*MY STUFF*/
 
-GLfloat X = 20.0;
+int NUM_CARTS = 16;
+
+GLfloat X = 50.0;
 GLfloat Y = 5.0;
-GLfloat Z = 100.0;
+GLfloat Z = 50.0;
+
 
 int speed = 5; /*scale from 0 - 10 */
 void eye_callback(int ID);
@@ -173,18 +176,183 @@ void left_lower_leg() {
 }
 */
 
+void base(){
+    glTranslatef(0, -WHEEL_RADIUS-4.0, 0);
+    glRotatef(45.0, 0.0, 1.0, 0.0);
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    gluDisk(p, 0, 20.0, 4, 4);
+    glTranslatef(0, 0, -1.0);
+    gluCylinder(p, 20.0, 20.0, 1.0, 4, 4);
+
+}
+
+void supports(){
+    glPushMatrix();
+    glTranslatef(0, 0, -2.0);
+    glRotatef(10.0, 1.0, 0.0, WHEEL_RADIUS);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    gluCylinder(p, 0.5, 1.0, WHEEL_RADIUS+4.5, 4, 4);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0, -2.0);
+    glRotatef(-10.0, 1.0, 0.0, WHEEL_RADIUS);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    gluCylinder(p, 0.5, 1.0, WHEEL_RADIUS+4.5, 4, 4);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0, 6.5);
+    glRotatef(10.0, 1.0, 0.0, WHEEL_RADIUS);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    gluCylinder(p, 0.5, 1.0, WHEEL_RADIUS+4.5, 4, 4);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0, 6.5);
+    glRotatef(-10.0, 1.0, 0.0, WHEEL_RADIUS);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    gluCylinder(p, 0.5, 1.0, WHEEL_RADIUS+4.5, 4, 4);
+    glPopMatrix();
+}
+
+void spokes(){
+    //angle that each cart is away from each
+    float increment = 360.0/NUM_CARTS;
+
+    int i;
+
+    glPushMatrix();
+	glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+	for(i = 0; i<NUM_CARTS; i++){
+	    glPushMatrix();
+		glRotatef(increment*i, 0.0, 0.0, 1.0); //position spoke in wheel 
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		gluCylinder(p, 0.10, 0.10, WHEEL_RADIUS, 16, 16);
+	    glPopMatrix();
+	    glPushMatrix();
+		glRotatef(increment*i+180, 0.0, 0.0, 1.0); //position spoke in wheel 
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		gluCylinder(p, 0.10, 0.10, WHEEL_RADIUS, 16, 16);
+	    glPopMatrix();
+	}
+    glPopMatrix();
+
+    glPushMatrix();
+	glTranslatef(0, 0, 5.0);
+	glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+	for(i = 0; i<NUM_CARTS; i++){
+	    glPushMatrix();
+		glRotatef(increment*i, 0.0, 0.0, 1.0); //position spoke in wheel 
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		gluCylinder(p, 0.10, 0.10, WHEEL_RADIUS, 16, 16);
+	    glPopMatrix();
+	    glPushMatrix();
+		glRotatef(increment*i+180, 0.0, 0.0, 1.0); //position spoke in wheel 
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		gluCylinder(p, 0.10, 0.10, WHEEL_RADIUS, 16, 16);
+	    glPopMatrix();
+	}
+    glPopMatrix();
+}
+
 
 void wheels(){
+
   glPushMatrix();
-  glRotatef(spin_theta, 1.0, 0.0, 0.0); 
-  glRotatef(90, 0.0, 1.0, 0.0);
-  glutSolidTorus(0.5, WHEEL_RADIUS, 16, 16);
-  glPushMatrix();
-  glTranslatef(0.0, 0.0, 5.0);
-  glutSolidTorus(0.5, WHEEL_RADIUS, 16, 16);
-  glPopMatrix();
+      glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+
+      //far side
+      glutSolidTorus(0.5, WHEEL_RADIUS, 16, 16); //outer ring
+      glutSolidTorus(0.25, WHEEL_RADIUS/2, 16, 16); //inner ring
+
+      glPushMatrix();
+
+	  glRotatef(180.0, 1.0, 0.0, 0.0); //make it point in the right direction
+	  gluDisk(p, 0, WHEEL_RADIUS/8, NUM_CARTS, NUM_CARTS); //middle disk
+	  gluCylinder(p, WHEEL_RADIUS/8, WHEEL_RADIUS/8, 0.5, NUM_CARTS, NUM_CARTS); //make middle disk 3D
+	  glTranslatef(0.0, 0.0, .5); //make other side of middle disc
+	  gluDisk(p, 0, WHEEL_RADIUS/8, NUM_CARTS, NUM_CARTS); //finish drawing middle disc
+
+	  glPushMatrix();
+	      gluCylinder(p, .5, .5, 2.0, NUM_CARTS, NUM_CARTS); //attachment to base
+	      glTranslatef(0.0, 0.0, 2.0); 
+	      gluDisk(p, 0, 0.5, NUM_CARTS, NUM_CARTS); //make the attachement to base a closed cylinder
+	  glPopMatrix();
+
+      glPopMatrix();
+
+      //near side
+      glPushMatrix();
+      glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+	  glTranslatef(0.0, 0.0, 5.0); //drawing the other wheels now
+	  glutSolidTorus(0.5, WHEEL_RADIUS, NUM_CARTS, NUM_CARTS); //outer ring
+	  glutSolidTorus(0.25, WHEEL_RADIUS/2, NUM_CARTS, NUM_CARTS); //inner ring
+
+	  gluDisk(p, 0, WHEEL_RADIUS/8, NUM_CARTS, NUM_CARTS); //middle disk
+	  gluCylinder(p, WHEEL_RADIUS/8, WHEEL_RADIUS/8, 0.5, NUM_CARTS, NUM_CARTS); //make middle disk 3D
+	  glPushMatrix();
+	      glTranslatef(0.0, 0.0, .5); //make other side of middle disc
+	      gluDisk(p, 0, WHEEL_RADIUS/8, NUM_CARTS, NUM_CARTS); //finish drawing middle disc
+	  glPopMatrix();
+
+	  gluCylinder(p, .5, .5, 2.0, NUM_CARTS, NUM_CARTS); //attachment to base
+	  glPushMatrix();
+	      glTranslatef(0.0, 0.0, 2.0);
+	      gluDisk(p, 0, 0.5, NUM_CARTS, NUM_CARTS); //finish drawing attachment to base
+	  glPopMatrix();
+      glPopMatrix();
   glPopMatrix();
 }
+
+void cart(){
+    glPushMatrix();
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    gluCylinder(p, 2.0, 0.0, 2.0, 16, 16);
+    glPopMatrix();
+}
+
+void carts(){
+
+    float increment = 360.0/NUM_CARTS;
+    
+    glPushMatrix();
+    glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+    for(int i = 0; i<16; i++){
+
+	//position cart correctly
+	glPushMatrix();
+	    glRotatef(increment*i, 0.0, 0.0, 1.0); //correct cart in correct position
+	    glTranslatef(0, WHEEL_RADIUS, 0); //stick it at the edge of the wheels
+	    glTranslatef(0, 0, 2.5); //put it in between the two wheels
+	    glRotatef(-spin_theta-i*increment, 0.0, 0.0, 1.0); //keep cart upright
+
+	    //umbrella
+	    glRotatef(-90.0, 1.0, 0.0, 0.0); //make it point up
+	    gluCylinder(p, 2.0, 0.0, 2.0, 16, 16);
+
+	    //bars
+	    glPushMatrix();
+	    glTranslatef(0, 0, -2); 
+	    glTranslatef(0, -1.5, 0); 
+	    gluCylinder(p, 0.15, 0.15, 2.0, 4, 4);
+	    glPopMatrix();
+
+	    glPushMatrix();
+	    glTranslatef(0, 0, -2); 
+	    glTranslatef(0, 1.5, 0); 
+	    gluCylinder(p, 0.15, 0.15, 2.0, 4, 4);
+	    glPopMatrix();
+
+	    //box
+
+	    
+	glPopMatrix();
+
+    }
+
+}
+
 
 
 void display() {
@@ -193,6 +361,7 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluLookAt(X, Y, Z, 0.0, 0.0, 0.0, 0.0,  1.0, 0.0);
+
   glPushMatrix();
 
   /* torso */
@@ -260,10 +429,33 @@ void display() {
   glPopMatrix();
   */
 
+  /* base */
+  glPushMatrix();
+  base();
+  glPopMatrix();
+
+  /* supports */
+  glPushMatrix();
+  supports();
+  glPopMatrix();
+
+  /* spokes */
+  glPushMatrix();
+  spokes();
+  glPopMatrix();
+
   /* wheels */
   glPushMatrix();
   wheels();
   glPopMatrix();
+
+  /* carts */
+  glPushMatrix();
+  carts();
+  glPopMatrix();
+
+
+  /* cool stuff? */
 
 
   glPopMatrix();
@@ -314,6 +506,7 @@ int main(int argc, char **argv) {
 
   new GLUI_Button(control_panel, "Quit", 0, (GLUI_Update_CB)exit);
 
+  /*
   new GLUI_Column(control_panel, true);
 
   GLUI_Spinner *bend0=new GLUI_Spinner(control_panel, "BODY Angle", GLUI_SPINNER_FLOAT, &(theta[0]), 0,(GLUI_Update_CB) NULL);
@@ -352,6 +545,7 @@ int main(int argc, char **argv) {
   bend9->set_float_limits(-140.0, 70.0, GLUI_LIMIT_CLAMP);
   GLUI_Spinner *bend10=new GLUI_Spinner(left_leg_rollout, "Lower Leg Angle", GLUI_SPINNER_FLOAT, &(theta[10]), 0, (GLUI_Update_CB)NULL);
   bend10->set_float_limits(0.0, 160.0, GLUI_LIMIT_CLAMP);
+  */
 
   new GLUI_Column(control_panel, true);
 
@@ -363,6 +557,7 @@ int main(int argc, char **argv) {
   GLUI_Spinner *z_spin=control_panel->add_spinner_to_panel(eye_rollout, "Z", GLUI_SPINNER_FLOAT, &Z, 3, eye_callback);
   z_spin->set_float_limits(-300.0, 300.0, GLUI_LIMIT_CLAMP);
 
+  new GLUI_Column(control_panel, true);
   GLUI_Rollout *speed_rollout = new GLUI_Rollout(control_panel, "Speed", false );
 
   GLUI_Spinner *speed_spinner= new GLUI_Spinner(speed_rollout, "Speed:", GLUI_SPINNER_INT, &speed, 0, speed_callback);
