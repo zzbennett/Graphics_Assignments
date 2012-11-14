@@ -33,20 +33,6 @@ void ground(){
     gluDisk(p, 0, 1000.0, 4, 4);
 }
 
-void sky(){
-	//finish adding stars
-    glRotatef(45.0, -0.9, 0.9, -0.9);
-	glTranslatef(-90, 90, -90);
-	gluDisk(p, 0, 0.5, 16, 16);
-	glTranslatef(0, -50, 0);
-	gluDisk(p, 0, 0.5, 16, 16);
-	glTranslatef(10, 20, 0);
-	gluDisk(p, 0, 0.5, 16, 16);
-	glTranslatef(10, 20, 0);
-	gluDisk(p, 0, 0.5, 16, 16);
-	glTranslatef(40, 0, 30);
-	gluDisk(p, 0, 0.5, 16, 16);
-}
 
 void base(){
     glTranslatef(0, -WHEEL_RADIUS-4.0, 0);
@@ -183,7 +169,7 @@ void carts(){
     
     glPushMatrix();
     glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
-    for(int i = 0; i<16; i++){
+    for(int i = 0; i<NUM_CARTS; i++){
 
 	//position cart correctly
 	glPushMatrix();
@@ -193,6 +179,7 @@ void carts(){
 	    glRotatef(-spin_theta-i*increment, 0.0, 0.0, 1.0); //keep cart upright
 
 	    //umbrella
+		changeMaterial(yellowPlasticMaterials);
 	    glRotatef(-90.0, 1.0, 0.0, 0.0); //make it point up
 	    gluCylinder(p, 2.0, 0.0, 2.0, 16, 16);
 
@@ -210,6 +197,7 @@ void carts(){
 	    glPopMatrix();
 
 	    //box
+		changeMaterial(bluePlasticMaterials);
 		glPushMatrix();
 			glTranslatef(0, 0, -4);
 			glRotatef(45.0, 0.0, 0.0, 1.0);
@@ -223,6 +211,99 @@ void carts(){
 	glPopMatrix();
 
     }
+
+}
+
+void lights(){
+	
+	float between_lights = (7*WHEEL_RADIUS/8) / NUM_CARTS;
+    float increment = 360.0/NUM_CARTS;
+
+    int i;
+	int j;
+
+    glPushMatrix();
+	glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+	int int_spin_theta = (spin_theta * 100) / 100 + 1; //determines which lights go off when
+
+	//are we in the flashing pattern or the growing pattern
+	if((int_spin_theta % 100 == 0) && (int_spin_theta % 200 != 0) ){
+		flashing = 0;
+		changeMaterial(lightsOff);
+	}
+	else if(int_spin_theta % 200 == 0){
+		flashing = 1;
+	}
+
+	
+	if(flashing){//we're in the flashing pattern, set the lighting accordingly
+		if((int_spin_theta % 5 == 0) && (int_spin_theta % 10 != 0) ){
+			changeMaterial(lightsOn);
+		}
+		else if(int_spin_theta % 5 == 0){
+			changeMaterial(lightsOff);
+		}
+	} 
+	else{ //we're in the growing pattern
+		if(int_spin_theta % 10 == 0){
+			ring = (ring + 1) % NUM_CARTS;
+		}
+	}
+	//far side
+	for(i = 0; i<NUM_CARTS; i++){
+	    glPushMatrix();
+		glRotatef(increment*i, 0.0, 0.0, 1.0); //put lights on the correct spoke
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		glTranslatef(0, 0, between_lights);
+		for(j = 0; j<NUM_CARTS; j++){
+			if(flashing){
+				glTranslatef(0, 0, between_lights);
+				gluSphere(p, .3, 8,8);		
+			}
+			else{
+				if( ring == j ){
+					changeMaterial(lightsOn);
+				}
+				else{
+					changeMaterial(lightsOff);
+				}
+				glTranslatef(0, 0, between_lights);
+				gluSphere(p, .3, 8,8);		
+			}
+		}
+		
+	    glPopMatrix();
+	}
+    glPopMatrix();
+
+	//near side
+    glPushMatrix();
+	glTranslatef(0, 0, 5.0);
+	glRotatef(spin_theta, 0.0, 0.0, 1.0);  //spin the ferris wheel
+	for(i = 0; i<NUM_CARTS; i++){
+	    glPushMatrix();
+		glRotatef(increment*i, 0.0, 0.0, 1.0); //put lights on the correct spoke
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		glTranslatef(0, 0, between_lights);
+		for(j = 0; j<NUM_CARTS; j++){
+			if(flashing){
+				glTranslatef(0, 0, between_lights);
+				gluSphere(p, .3, 8,8);		
+			}
+			else{
+				if( ring == j ){
+					changeMaterial(lightsOn);
+				}
+				else{
+					changeMaterial(lightsOff);
+				}
+				glTranslatef(0, 0, between_lights);
+				gluSphere(p, .3, 8,8);		
+			}
+		}
+	    glPopMatrix();
+	}
+    glPopMatrix();
 
 }
 
@@ -244,12 +325,6 @@ void display() {
   glPushMatrix();
   changeMaterial(greyPlasticMaterials);
   ground();
-  glPopMatrix();
-
-  /* sky */
-  glPushMatrix();
-  changeMaterial(whitePlasticMaterials);
-  sky();
   glPopMatrix();
 
 
@@ -284,6 +359,10 @@ void display() {
 
 
   /* cool stuff? */
+  glPushMatrix();
+  changeMaterial(lightsOff);
+  lights();
+  glPopMatrix();
 
 
   glPopMatrix();
