@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+</head>
+
+<body>
+<div align="center"> 
+  <p><font size="7">Ray Tracing<br>
+    CS 357 HW4</font><br>
+    due Wednesday, December 5</p>
+  <p>&nbsp;</p>
+  <p align="left">In this assignment you will write a ray tracer which will display 
+    a scene consisting of at least two objects. You should hand in a program and 
+    a Makefile, and also a README file that describes your scene. Here are the 
+    basic requirements:</p>
+  <p align="left">A) Position the viewer and the pixel grid anywhere you
+ like. 
+    Take a look at the file trace.c, which sets up a viewer and a pixel 
+grid. This has the world's simplest scene -- a viewer at (10, 2, 2), a 
+pixel grid in the rectangle x=10 0&lt;=y,z&lt;=4, and a polygon x=0, 
+0&lt;=y,z&lt;=4. The tracer isn't recursive and we color the rays red if
+ they hit the rectangle and blue if they don't. Still, it should get you
+ started.</p>
+  <p align="left">B) You need to put at least two objects in your scene and light 
+    needs to interact between them in some way. The objects need to be objects 
+    for which you can solve the ray intersection problem -- spheres, cylinders, 
+    polygons, cubes, etc. Spheres and rectangles aligned with the coordinate axes are the easiest objects to start with. Since 
+    you are making only one picture you can can define the objects any way you 
+    like. For example, if you can figure out the ray intersection problem for 
+    a cube aligned with the coordinate axes, you can use that even if you can't 
+    solve the intersection problem for more general cubes. </p>
+  <p align="left">You will need a light, of course. You will probably 
+find that you can get a nicer picture for not much extra work if you use
+ two lights: perhaps one directly over the objects and one over the 
+viewer. With only one light the shadows look pretty stark unless you use
+ a lot of ambient light, and then the objects tend to flatten out.</p>
+  <p align="left">The final picture needs to show some interaction 
+between the 
+    objects. One might be a mirror-like surface (with high specular 
+reflection 
+    coefficient) that reflects the other, or one might be in the shadow 
+of the 
+    another, or one might be transparent and show the other through 
+refraction. 
+    One way or another, your picture should show some light interaction.
+ I think this is probably easier to achieve if you have a sphere sitting
+ on a rectangle than if you use two spheres. Note that you can intersect
+ the ray &lt;x, y, z&gt; = &lt;A, B, C&gt; + t&lt;D, E, F&gt; with the 
+rectangle 0&lt; x &lt; 1, 0 &lt; y &lt; 1, z=0 by first finding where 
+the ray intersects the plane z=0 (which is when t = -C/F) and then 
+seeing if the x and y coordinates satisfy 0 &lt; x &lt; 1, 0 &lt; y &lt;
+ 1. </p>
+  <p align="left">C) You want to represent a ray as a point plus a 
+direction vector 
+    times a scalar parameter t. Each object in the scene needs an 
+intersection 
+    method (naturally, objects of the same type can share a method). 
+This method 
+    should input a ray and return the smallest value of t at which the 
+ray intersects 
+    the object. If you want to implement transparency or 
+intersection/difference 
+    operations your intersect method should return a vector with all 
+t-values 
+    for the ray's intersection with the object. From these t-values you 
+can easily 
+    compute the point or points of intersection. You also need some way 
+to compute 
+    the object's normal vector at the point of intersection -- this 
+might be computed 
+    by each object's intersect method or by some other means, but you 
+can't do 
+    lighting calculations without it. Finally, you need a global 
+intersect method 
+    that takes a ray, calls each of the objects intersect methods, and 
+returns 
+    the intersection point and normal vector for the nearest object hit 
+by the 
+    ray -- the object with smallest t-value for it intersection. This 
+method also 
+    needs to indicate which object this intersection point belongs to, 
+so you 
+    will be able to find the surface properties at this point. Make some
+ kind of structure to hold all of this information and have Intersect 
+return a pointer to it.</p>
+  <p align="left">D) The most important function of your ray tracer is its recursive 
+    trace method. This will have at least the following arguments:</p>
+</div>
+<ul>
+  <li>
+    <div align="left"><u>ray</u>: the ray being traced</div>
+  </li>
+  <li>
+    <div align="left"><u>level</u>: a counter for how deeply you are buried in 
+      the recursion. This should be incremented each time you make another recursive 
+      call to trace. Somewhere, either as a global constant or as an argument 
+      to the trace function, you need a maxLevel value. The recursion should end 
+      when level &gt; maxLevel, if not before</div>
+  </li>
+  <li>
+    <div align="left"><u>weight</u>: You trace rays for use in lighting calculations. 
+      Surfaces have constants (Ks, Kd, etc) that describe how much of the available 
+      light is reflected in a particular way. These constants accumulate. For 
+      example, if the specular reflection coefficient for a surface is 0.2, and 
+      the ray we send in the specular direction hits a surface with specular coefficient 
+      0.3, then a ray that we send for this second surface's specular component 
+      will have weight 0.2*0.3 =0.06. You should keep a global constant (or a 
+      constant parameter for the trace method) minWeight, and break off the recursion 
+      when weight &lt; minWeight. </div>
+  </li>
+</ul>
+<div align="center">
+  <p align="left">Your trace method should either return a color (the color of 
+    the ray being traced) or else have an additional parameter to return this 
+    color. Note that if level = = 0, you may wish to have trace return a background 
+    color if the ray does not hit any objects in the scene. For all other levels 
+    it is important to have the tracer return black (&lt;0,0,0&gt;) if the ray 
+    misses the scene.</p>
+  <p align="left">The trace method should be easy to write. It calls the global 
+    intersect method to find the nearest intersection point. It then does ambient, 
+    diffuse, and specular calculations using this point, the surface normal, the 
+    surface properties and the properties of the light source (or sources). The 
+    diffuse calculation needs another call to the global intersect method to determine 
+    if this point is in the light or shade, and the specular calculation needs 
+    a recursive call to trace to determine the color of the incoming light that 
+    will be reflected specularly. At the end sum all of these components times 
+    their weights (the reflection coefficients from the surface properties) to 
+    get the color to return.</p>
+  <p align="left">E) Your program should maintain a bitmap: an NxMx3 
+array of 
+    colors. Each time you trace a ray through another pixel update an 
+entry of 
+    this bitmap. In the end you draw the bitmap to the screen with a 
+call to glDrawPixels. 
+    Note that as far as OpenGL is concerned your program is running in 
+2D mode 
+    -- you don't need any of the 3D transformations that OpenGL 
+provides. If you want more information about how OpenGL handles bitmaps,
+ see 
+    the example program "simpleImage.c" in Chapter 7 of the 
+PrimerExamples 
+    directory. Note also that you do not need to provide any user 
+controls -- 
+    it is sufficient for your program to produce a single picture, from a
+ fixed 
+    viewpoint. In designing your program you should make liberal use of 
+constants 
+    that you can later tweek after you start getting some output.</p>
+  <p align="left">F) Since there are no controls for moving around the scene, 
+    it is sometimes hard for me to see what is going on in student solutions to 
+    this assignment. Along with your code and Makefile you should hand in a README 
+    file that describes in a few sentences your scene and any details I should 
+    pay special attention to.</p>
+  <p align="left">This is due at midnight on Wednesday, December 5. </p>
+  <p>&nbsp;</p>
+</div>
+
+
+</body></html>
