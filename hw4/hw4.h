@@ -1,5 +1,11 @@
-#include <GL/glut.h>
-#include <cstdio>
+#include<GL/glut.h>
+#include<cstdio>
+#include<stdio.h>
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<iomanip>
+#include<math.h>
 
 // N is the height of the bitmap; M is its width
 #define IMAGE_HEIGHT 200  //N
@@ -14,18 +20,66 @@
 #define SIDE_WALL 3
 #define BACK_WALL 4
 #define LIGHT 5
-#define NUM_OBJECTS 1
+
+#define NUM_OBJECTS 1 //only have the sphere for now
 
 typedef struct ray {
     GLfloat point[3];
     GLfloat direction[3];
 }Ray;
 
+typedef struct lightingStruct {
+  GLfloat ambient[4];
+  GLfloat diffuse[4];
+  GLfloat specular[4];
+ // GLfloat location[3];
+} Light;
+
+typedef struct materialStruct {
+  GLfloat ambient[4];
+  GLfloat diffuse[4];
+  GLfloat specular[4];
+  GLfloat shininess;
+} materialStruct;
+
+materialStruct greyPlasticMaterials = {
+  {0.3, 0.3, 0.3, 1.0},
+  {0.5, 0.5, 0.5, 1.0},
+  {0.8, 0.6, 0.6, 1.0},
+  30.0};
+
+materialStruct redPlasticMaterials = {
+  {0.3, 0.0, 0.0, 1.0},
+  {0.9, 0.0, 0.0, 1.0},
+  {0.8, 0.6, 0.6, 1.0},
+  30.0};
+
+materialStruct greenPlasticMaterials = {
+  {0.3, 0.0, 0.0, 1.0},
+  {0.0, 1.0, 0.0, 0.1},
+  {0.8, 0.6, 0.6, 1.0},
+  30.0};
+
+materialStruct bluePlasticMaterials = {
+  {0.3, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 1.0, 1.0},
+  {0.8, 0.6, 0.6, 1.0},
+  30.0};
+
+materialStruct yellowPlasticMaterials = {
+  {0.3, 0.0, 0.0, 1.0},
+  {0.9, 0.8, 0.0, 1.0},
+  {0.8, 0.6, 0.6, 1.0},
+  30.0};
+
 typedef struct object {
-    //pointer to a function holding this object's intersection method.
-//    Intersection *(*CalcIntersection)(Ray *);
-    GLfloat color[3]; //location
-    int ObjectNumber;
+    materialStruct * material;
+    GLfloat location[3]; //location
+	GLfloat radius;
+	GLfloat A;
+	GLfloat B;
+	GLfloat C;
+    int objectNumber;
 } Object;
 
 Object* Objects[NUM_OBJECTS];
@@ -39,12 +93,6 @@ typedef struct intersection {
     GLfloat t_value;
 }Intersection;
 
-typedef struct lightingStruct {
-  GLfloat ambient[4];
-  GLfloat diffuse[4];
-  GLfloat specular[4];
-  GLfloat location[3];
-} Light;
 
 //array of intersection functions for each type of object in my scene
 //Intersection *(*intersect_methods[NUM_OBJECTS]) (Ray*);
@@ -69,8 +117,9 @@ GLfloat BACKGROUND[3] = {YELLOW[1], YELLOW[2], YELLOW[3]};
 
 int trace_finished = 0;
 
-void MakeLightSourceRay(Intersection *i, Ray *r);
+void MakeLightSourceRay(Intersection *i, Ray *l);
 Intersection *Intersect_light_source( Ray *r, Object * object);
 Intersection *Intersect_Polygon( Ray *r, Object * object );
 Intersection *Intersect_Sphere( Ray *r, Object * object );
 
+void InitObjects();
