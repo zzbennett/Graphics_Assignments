@@ -1,9 +1,7 @@
-/*     trace.c  */
 
-/* This is a simple non-recursive "ray tracer" */
-/* The only object in the scene is a rectangle with */
-/* x=0, -2<=y<2, 0<=z<=4.  */
+/* HW4 -- Liz Bennett */
 
+/* This program produces a simple ray-traced image */
 
 #include <GL/glut.h>
 
@@ -65,6 +63,7 @@ void display() {
   glFlush();
 }
 
+/*copies GLfoat array x of length 3 into GLfloat array y of length 3 */
 void copy3(GLfloat *x, GLfloat *y) {
   /* sets x = y */
   int i;
