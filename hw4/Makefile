@@ -8,7 +8,7 @@ all: $(TARGETS)
 
 trace: trace.c 
 	$(CC) trace.c -o trace $(FLAGS) $(GLUI_LIBS)
-hw4: hw4.cpp
+hw4: hw4.cpp hw4.h
 	$(CC) hw4.cpp -o hw4 $(FLAGS) $(GLUI_LIBS)
 
 clean:
