@@ -33,7 +33,7 @@ void display() {
     glFlush();
 }
 
-/*copies GLfoat array x of length 3 into GLfloat array y of length 3 */
+/*copies GLfoat array y of length 3 into GLfloat array x of length 3 */
 void copy3(GLfloat *x, GLfloat *y) {
     /* sets x = y */
     int i;
@@ -52,7 +52,7 @@ GLfloat dotProduct(GLfloat * v1, GLfloat * v2){
 }
 
 void printFloat(GLfloat x){
-    std::cout << std::fixed << std::setprecision(3) << x << std::endl;
+    std::cout << std::fixed << std::setprecision(5) << x << std::endl;
 }
 
 /* This makes the ray from the viewer through pixel (i,j) */
@@ -81,30 +81,36 @@ void MakeRay(int i, int j, Ray *r) {
  * Return:  Ray that is the ray from the point of intersection towards the 
  *	    light source */
 
-void MakeLightSourceRays(Intersection *i, Ray * l[NUM_LIGHTS]){
+void MakeLightSourceRays(Intersection *i, Ray * rays[NUM_LIGHTS]){
 
-    l = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
+    //rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
 
-    GLfloat direction[3];
     int k;
-    for( k = 0; k<NUM_LIGHTS; k++){
-	copy3(l[k]->point, i->point);
-	l[k]->direction[0] = Lights[k]->location[0] - l[k]->point[0];
-	l[k]->direction[1] = Lights[k]->location[1] - l[k]->point[1];
-	l[k]->direction[2] = Lights[k]->location[2] - l[k]->point[2];
-    }
+	for( k = 0; k<NUM_LIGHTS; k++){
+	//	rays[k] = (Ray *) malloc( sizeof( Ray ) );
+		copy3(rays[k]->point, i->point);
+		rays[k]->direction[0] = Lights[k]->location[0] - rays[k]->point[0];
+		rays[k]->direction[1] = Lights[k]->location[1] - rays[k]->point[1];
+		rays[k]->direction[2] = Lights[k]->location[2] - rays[k]->point[2];
+
+	}
+	/*
+	printFloat(rays[0]->point[0]);
+	printFloat(rays[0]->point[1]);
+	printFloat(rays[0]->point[2]);
+	*/
 }
 
 
 /* Takes in a Ray * and an object number, calls appropriate Intersect method */
 Intersection *Intersect( Ray *r, Object * object){
     switch( object->objectNumber ){
-	case POLYGON:
-	    return Intersect_Polygon( r, object );
-	case SPHERE:
-	    return Intersect_Sphere( r, object );
-	default:
-	    return NULL;
+		case POLYGON:
+			return Intersect_Polygon( r, object );
+		case SPHERE:
+			return Intersect_Sphere( r, object );
+		default:
+			return NULL;
     }
 }
 
@@ -137,17 +143,23 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 	squareRoot = sqrt(squareRoot);
     }
 
-    GLfloat plus_t = (2*vDotA+squareRoot)/2*vDotv;
-    GLfloat minus_t = (2*vDotA-squareRoot)/2*vDotv;
+	/*Not sure about this, but it fixes my NaN's */
+	if(2*vDotv == 0)
+		return NULL;
+    GLfloat plus_t = ((2*vDotA)+squareRoot)/(2*vDotv);
+    GLfloat minus_t = ((2*vDotA)-squareRoot)/(2*vDotv);
 
     if(plus_t >= minus_t )
 	intersection->t_value = minus_t;
     else
 	intersection->t_value = plus_t;
 
-    intersection->point[0] = r->point[0]+intersection->t_value*r->direction[0];
-    intersection->point[1] = r->point[1]+intersection->t_value*r->direction[1];
-    intersection->point[2] = r->point[2]+intersection->t_value*r->direction[2];
+    intersection->point[0] = r->point[0]+(intersection->t_value*r->direction[0]);
+	//printFloat(intersection->point[0]);
+    intersection->point[1] = r->point[1]+(intersection->t_value*r->direction[1]);
+	//printFloat(intersection->point[1]);
+    intersection->point[2] = r->point[2]+(intersection->t_value*r->direction[2]);
+	//printFloat(intersection->point[2]);
 
     intersection->object = object;
     intersection->objectNumber = object->objectNumber;
@@ -156,18 +168,19 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 }
 
 Intersection *Find_Closest_Intersect( Ray * r ){
+	//printFloat(r->point[0]);
     int i;
     Intersection * smallest_p = NULL;
-    Intersection *cur_p = NULL;
-    for(i = 0; i<NUM_OBJECTS; i++){
-	//find object with smallest t-value
-	cur_p = Intersect( r, Objects[i]);
-	if(cur_p != NULL ){
-	    if(!smallest_p || cur_p->t_value < smallest_p->t_value )
-		smallest_p = cur_p;
+    Intersection * cur_p = NULL;
+	for(i = 0; i<NUM_OBJECTS; i++){
+		//find object with smallest t-value
+		cur_p = Intersect( r, Objects[i] );
+		if(cur_p != NULL ){
+			if(!smallest_p || cur_p->t_value < smallest_p->t_value )
+				smallest_p = cur_p;
+		}
 	}
-    }
-    return smallest_p;
+	return smallest_p;
 }
 
 Intersection *Find_Light_Intersect( Ray *ray, int light_number){
@@ -185,17 +198,22 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 	int i;
 
 	Intersection *p = Find_Closest_Intersect( r );
-
 	if (p != NULL) {
 	    /* TODO */
 	    /* Calculate ambient calculation */
 
 	    /* Create array from intersection point towards light sources */
-	    Ray *rays[NUM_LIGHTS]; /* holds array of rays pointing to all the lights*/
+	    //Ray * rays[NUM_LIGHTS]; /* holds array of rays pointing to all the lights*/
+		
+	    Ray ** rays; /* holds array of rays pointing to all the lights*/
+		rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
+		for( i = 0; i<NUM_LIGHTS; i++){
+			rays[i] = (Ray *) malloc( sizeof( Ray ) );
+		}
+
 	    MakeLightSourceRays(p, rays); /* make those rays */
-	    if(trace_finished){
-		//Intersection * light_intersections[NUM_LIGHTS]; /* array of intersections */
 		Intersection * l;
+
 		for(i = 0; i<NUM_LIGHTS; i++){
 		    p = Find_Closest_Intersect( rays[i] );
 		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
@@ -214,6 +232,7 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		    else{ //l->t_value < p->t_value
 			//we hit the light source! Diffuse calculation
 		    }
+			//free( rays[i] );
 		}
 		//if(p->objectNumber == LIGHT){
 		/* we've hit the light source! */
@@ -229,10 +248,7 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		   Transparent_color = Trace(T, level+1, maxlevel)
 		   return ambient_color+diffuse_color+specular_color+transparent_color;
 		   */
-	    }
-	    else{
 		copy3(color, BLUE);
-	    }
 	}
 	else{
 	    if(level==0)
