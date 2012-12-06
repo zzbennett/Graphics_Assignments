@@ -52,7 +52,7 @@ GLfloat dotProduct(GLfloat * v1, GLfloat * v2){
 }
 
 void printFloat(GLfloat x){
-    std::cout << std::fixed << std::setprecision(5) << x << std::endl;
+    std::cout << std::fixed << std::setprecision(6) << x << std::endl;
 }
 
 /* This makes the ray from the viewer through pixel (i,j) */
@@ -149,10 +149,16 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
     GLfloat plus_t = ((2*vDotA)+squareRoot)/(2*vDotv);
     GLfloat minus_t = ((2*vDotA)-squareRoot)/(2*vDotv);
 
+
     if(plus_t >= minus_t )
 	intersection->t_value = minus_t;
     else
 	intersection->t_value = plus_t;
+
+	if(intersection->t_value < 0)
+		return NULL;
+
+
 
     intersection->point[0] = r->point[0]+(intersection->t_value*r->direction[0]);
 	//printFloat(intersection->point[0]);
@@ -163,6 +169,8 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 
     intersection->object = object;
     intersection->objectNumber = object->objectNumber;
+
+	//printFloat(intersection->t_value);
 
     return intersection;
 }
@@ -216,6 +224,16 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 
 		for(i = 0; i<NUM_LIGHTS; i++){
 		    p = Find_Closest_Intersect( rays[i] );
+			if( p != NULL){
+				/*
+				printFloat( p->point[0] );
+				printFloat( p->point[1] );
+				printFloat( p->point[2] );
+				*/
+				//printFloat( p->t_value );
+				
+			}
+			//	printFloat(p->t_value);
 		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
 		    if(p == NULL && l == NULL){
 			//no diffuse calculation?
@@ -249,6 +267,9 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		   return ambient_color+diffuse_color+specular_color+transparent_color;
 		   */
 		copy3(color, BLUE);
+		for( i = 0; i<NUM_LIGHTS; i++){
+			free(rays[i]);
+		}
 	}
 	else{
 	    if(level==0)
@@ -275,9 +296,9 @@ void InitObjects(){
     /* LIGHT 1 */
     Light * light0 = (Light *) malloc( sizeof(Object) );
     light0->light = &lightOne;
-    light0->location[0] = 6.0;
+    light0->location[0] = 0.0;
     light0->location[1] = 0.0;
-    light0->location[2] = 0.0;
+    light0->location[2] = 10.0;
     Lights[0] = light0;
 
 }
