@@ -3,51 +3,51 @@
 #include "hw4.h"
 
 void init() {
-    glClearColor(1.0, 1.0, 0.0, 0.0);  // yellow background
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0.0, 600.0, 0.0, 600.0 );
+	glClearColor(1.0, 1.0, 0.0, 0.0);  // yellow background
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, 600.0, 0.0, 600.0 );
 }
 
 void reshape(int w, int h) {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0.0, (GLfloat)w, 0.0, (GLfloat)h );
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glViewport(0, 0, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, (GLfloat)w, 0.0, (GLfloat)h );
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glViewport(0, 0, w, h);
 }
 
 
 void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    //glRasterPos2i(300-IMAGE_WIDTH/2, 300-IMAGE_HEIGHT/2);  // position of the lower left corner
-    glRasterPos2i(0, 0);  // position of the lower left corner
-    // of the bitmap in window coords
+	glClear(GL_COLOR_BUFFER_BIT);
+	//glRasterPos2i(300-IMAGE_WIDTH/2, 300-IMAGE_HEIGHT/2);  // position of the lower left corner
+	glRasterPos2i(0, 0);  // position of the lower left corner
+	// of the bitmap in window coords
 
-    glDrawPixels(IMAGE_WIDTH, IMAGE_HEIGHT, GL_RGB, GL_FLOAT, image);  
-    // draws rows 0 to N, cols 0 to M of the bitmap "image".  
-    // The bitmap is created below in makeBitmap(), which is 
-    // the first function called in the program.
+	glDrawPixels(IMAGE_WIDTH, IMAGE_HEIGHT, GL_RGB, GL_FLOAT, image);  
+	// draws rows 0 to N, cols 0 to M of the bitmap "image".  
+	// The bitmap is created below in makeBitmap(), which is 
+	// the first function called in the program.
 
-    glFlush();
+	glFlush();
 }
 
 /*copies GLfoat array y of length 3 into GLfloat array x of length 3 */
 void copy3(GLfloat *x, GLfloat *y) {
-    /* sets x = y */
-    int i;
-    for (i = 0; i < 3; i++) {
-	x[i] = y[i];
-    }
+	/* sets x = y */
+	int i;
+	for (i = 0; i < 3; i++) {
+		x[i] = y[i];
+	}
 }
 
 /* normalize the vector given */
 void normalize(GLfloat *vector) {
-    /* sets x = y */
-    int i;
+	/* sets x = y */
+	int i;
 	GLfloat *xyz;
-    xyz[0] = vector[0];
+	xyz[0] = vector[0];
 	xyz[1] = vector[1];
 	xyz[2] = vector[2];
 	GLfloat length = sqrt((xyz[0]*xyz[0]) + (xyz[1] * xyz[1]) + (xyz[2] * xyz[2]));
@@ -58,35 +58,35 @@ void normalize(GLfloat *vector) {
 }
 
 GLfloat dotProduct(GLfloat * v1, GLfloat * v2){
-    GLfloat ret;
-    int i;
-    for (i = 0; i < 3; i++) {
-	ret += v1[i] * v2[i];
-    }
-    return ret;
+	GLfloat ret;
+	int i;
+	for (i = 0; i < 3; i++) {
+		ret += v1[i] * v2[i];
+	}
+	return ret;
 }
 
 void printFloat(GLfloat x){
-    std::cout << std::fixed << std::setprecision(6) << x << std::endl;
+	std::cout << std::fixed << std::setprecision(6) << x << std::endl;
 }
 
 /* This makes the ray from the viewer through pixel (i,j) */
 void MakeRay(int i, int j, Ray *r) {
-    GLfloat direction[3];
-    GLfloat pixel[3]; // The world coordinates of the (i, j) pixel
-    int k;
+	GLfloat direction[3];
+	GLfloat pixel[3]; // The world coordinates of the (i, j) pixel
+	int k;
 
-    copy3(r->point, ViewerPosition);
+	copy3(r->point, ViewerPosition);
 
-    //converting pixel into world coordinates
-    pixel[0] = GridX;
-    pixel[1] = GridY + (GridWidth*j)/IMAGE_WIDTH;
-    pixel[2] = GridZ - (GridHeight*i)/IMAGE_HEIGHT;
-    for (k = 0; k < 3; k++ ) {
-	direction[k] = pixel[k] - r->point[k];
-    }
-    copy3(r->direction, direction);
-    //we just computed r's direction
+	//converting pixel into world coordinates
+	pixel[0] = GridX;
+	pixel[1] = GridY + (GridWidth*j)/IMAGE_WIDTH;
+	pixel[2] = GridZ - (GridHeight*i)/IMAGE_HEIGHT;
+	for (k = 0; k < 3; k++ ) {
+		direction[k] = pixel[k] - r->point[k];
+	}
+	copy3(r->direction, direction);
+	//we just computed r's direction
 }
 
 /* TODO intersect ray with Light source */
@@ -98,11 +98,11 @@ void MakeRay(int i, int j, Ray *r) {
 
 void MakeLightSourceRays(Intersection *i, Ray * rays[NUM_LIGHTS]){
 
-    //rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
+	//rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
 
-    int k;
+	int k;
 	for( k = 0; k<NUM_LIGHTS; k++){
-	//	rays[k] = (Ray *) malloc( sizeof( Ray ) );
+		//	rays[k] = (Ray *) malloc( sizeof( Ray ) );
 		copy3(rays[k]->point, i->point);
 		rays[k]->direction[0] = Lights[k]->location[0] - rays[k]->point[0];
 		rays[k]->direction[1] = Lights[k]->location[1] - rays[k]->point[1];
@@ -110,23 +110,25 @@ void MakeLightSourceRays(Intersection *i, Ray * rays[NUM_LIGHTS]){
 
 	}
 	/*
-	printFloat(rays[0]->point[0]);
-	printFloat(rays[0]->point[1]);
-	printFloat(rays[0]->point[2]);
-	*/
+	   printFloat(rays[0]->point[0]);
+	   printFloat(rays[0]->point[1]);
+	   printFloat(rays[0]->point[2]);
+	   */
 }
 
 
 /* Takes in a Ray * and an object number, calls appropriate Intersect method */
 Intersection *Intersect( Ray *r, Object * object){
-    switch( object->objectNumber ){
+	switch( object->objectNumber ){
 		case POLYGON:
 			return Intersect_Polygon( r, object );
 		case SPHERE:
 			return Intersect_Sphere( r, object );
+		case SPHERE2:
+			return Intersect_Sphere( r, object );
 		default:
 			return NULL;
-    }
+	}
 }
 
 /* TODO implement me! */
@@ -140,65 +142,70 @@ Intersection *Intersect_Polygon( Ray *r, Object * object ) {
 /* TODO write method for intersections with spheres */
 Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 
-    Intersection * intersection = (Intersection *)malloc( sizeof( Intersection ) );
+	Intersection * intersection = (Intersection *)malloc( sizeof( Intersection ) );
 
-    GLfloat A[3];
-    A[0] = object->location[0] - r->point[0];
-    A[1] = object->location[1] - r->point[1];
-    A[2] = object->location[2] - r->point[2];
+	GLfloat A[3];
+	A[0] = object->location[0] - r->point[0];
+	A[1] = object->location[1] - r->point[1];
+	A[2] = object->location[2] - r->point[2];
 
-    GLfloat vDotA = dotProduct(r->direction, A);
-    GLfloat vDotv = dotProduct(r->direction, r->direction);
-    GLfloat ADotA = dotProduct(A, A);
-    GLfloat squareRoot = 4*(vDotA*vDotA)-(4*vDotv)*(ADotA-(object->radius*object->radius));
-    if( squareRoot < 0 ){
-	return NULL;
-    }
-    else{
-	squareRoot = sqrt(squareRoot);
-    }
+	GLfloat vDotA = dotProduct(r->direction, A);
+	GLfloat vDotv = dotProduct(r->direction, r->direction);
+	GLfloat ADotA = dotProduct(A, A);
+	GLfloat squareRoot = 4*(vDotA*vDotA)-(4*vDotv)*(ADotA-(object->radius*object->radius));
+	if( squareRoot < 0 ){
+		return NULL;
+	}
+	else{
+		squareRoot = sqrt(squareRoot);
+	}
 
 	/*Not sure about this, but it fixes my NaN's */
 	if(2*vDotv == 0)
 		return NULL;
-    GLfloat plus_t = ((2*vDotA)+squareRoot)/(2*vDotv);
-    GLfloat minus_t = ((2*vDotA)-squareRoot)/(2*vDotv);
+	GLfloat plus_t = ((2*vDotA)+squareRoot)/(2*vDotv);
+	GLfloat minus_t = ((2*vDotA)-squareRoot)/(2*vDotv);
 
 
-    if(plus_t >= minus_t )
-	intersection->t_value = minus_t;
-    else
-	intersection->t_value = plus_t;
+	if(plus_t >= minus_t )
+		intersection->t_value = minus_t;
+	else
+		intersection->t_value = plus_t;
 
 	if(intersection->t_value < 0.01)
 		return NULL;
 
 
 
-    intersection->point[0] = r->point[0]+(intersection->t_value*r->direction[0]);
+	intersection->point[0] = r->point[0]+(intersection->t_value*r->direction[0]);
 	//printFloat(intersection->point[0]);
-    intersection->point[1] = r->point[1]+(intersection->t_value*r->direction[1]);
+	intersection->point[1] = r->point[1]+(intersection->t_value*r->direction[1]);
 	//printFloat(intersection->point[1]);
-    intersection->point[2] = r->point[2]+(intersection->t_value*r->direction[2]);
+	intersection->point[2] = r->point[2]+(intersection->t_value*r->direction[2]);
 	//printFloat(intersection->point[2]);
-	
+
 	intersection->normal[0] = intersection->point[0] - object->location[0];
 	intersection->normal[1] = intersection->point[1] - object->location[1];
 	intersection->normal[2] = intersection->point[2] - object->location[2];
 
-    intersection->object = object;
-    intersection->objectNumber = object->objectNumber;
+	GLfloat NdotV = -1 * dotProduct( intersection->normal, r->direction);
+	intersection->reflection[0] = r->direction[0] + (2 * intersection->normal[0] * NdotV);
+	intersection->reflection[1] = r->direction[1] + (2 * intersection->normal[1] * NdotV);
+	intersection->reflection[2] = r->direction[2] + (2 * intersection->normal[2] * NdotV);
 
-	//printFloat(intersection->t_value);
+	intersection->object = object;
+	intersection->objectNumber = object->objectNumber;
 
-    return intersection;
+	//printFloat(intersection->reflection[0]);
+
+	return intersection;
 }
 
 Intersection *Find_Closest_Intersect( Ray * r ){
 	//printFloat(r->point[0]);
-    int i;
-    Intersection * smallest_p = NULL;
-    Intersection * cur_p = NULL;
+	int i;
+	Intersection * smallest_p = NULL;
+	Intersection * cur_p = NULL;
 	for(i = 0; i<NUM_OBJECTS; i++){
 		//find object with smallest t-value
 		cur_p = Intersect( r, Objects[i] );
@@ -211,8 +218,8 @@ Intersection *Find_Closest_Intersect( Ray * r ){
 }
 
 Intersection *Find_Light_Intersect( Ray *ray, int light_number){
-    Intersection * intersection = (Intersection *)malloc( sizeof( Intersection ) );
-    Light * light = Lights[light_number];    
+	Intersection * intersection = (Intersection *)malloc( sizeof( Intersection ) );
+	Light * light = Lights[light_number];    
 
 	if(ray->direction[0] == 0 && ray->direction[1] == 0 && ray->direction[2] == 0)
 		return NULL;
@@ -228,213 +235,242 @@ Intersection *Find_Light_Intersect( Ray *ray, int light_number){
 	t_y = (y - ray->point[1])/ray->direction[1];
 	t_z = (z - ray->point[2])/ray->direction[2];
 	//printFloat(t);
-	
+
 	if(t_x < 0.01 || t_y < 0.01 || t_z < 0.01){
 		//puts("returning null!!");
 		return NULL;
 	}
-	
+
 	//printFloat(t_x);
 	//printFloat(t_y);
 	//printFloat(t_z);
 	/*
-	/rintFloat(ray->point[0]);
-	printFloat(ray->point[1]);
-	printFloat(ray->point[2]);
-	printFloat(ray->direction[0]);
-	printFloat(ray->direction[1]);
-	printFloat(ray->direction[2]);
-	*/
+	   /rintFloat(ray->point[0]);
+	   printFloat(ray->point[1]);
+	   printFloat(ray->point[2]);
+	   printFloat(ray->direction[0]);
+	   printFloat(ray->direction[1]);
+	   printFloat(ray->direction[2]);
+	   */
 	intersection->t_value = t_x;
 	return intersection;
 }
 
 GLfloat *Trace(Ray *r, int level, float weight) {
-    GLfloat *color = (GLfloat *)malloc(3*sizeof(GLfloat));
-    if(level > MAX_RECURSION){
-	copy3(color, BLACK);
-    }
-    else{
-	//intersect r with all the objects in the scene
-	int i;
-
-	Intersection *p = Find_Closest_Intersect( r );
-	if (p != NULL) {
-	    /* TODO */
-	    /* Calculate ambient calculation */
-		GLfloat *ambient = (GLfloat *)malloc(3*sizeof(GLfloat));
-		ambient[0]= p->object->material->ambient[0];
-		ambient[1]= p->object->material->ambient[1];
-		ambient[2]= p->object->material->ambient[2];
-
-		GLfloat *diffuse = (GLfloat *)malloc(3*sizeof(GLfloat));
-
-	    /* Create array from intersection point towards light sources */
-		
-	    Ray ** rays; /* holds array of rays pointing to all the lights*/
-		rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
-		for( i = 0; i<NUM_LIGHTS; i++){
-			rays[i] = (Ray *) malloc( sizeof( Ray ) );
-		}
-
-	    MakeLightSourceRays(p, rays); /* make those rays */
-		Intersection * l;
-		Intersection * p2;
-
-		for(i = 0; i<NUM_LIGHTS; i++){
-
-		    p2 = Find_Closest_Intersect( rays[i] );
-		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
-
-			/*
-			if( p != NULL){
-				printFloat( p->point[0] );
-				printFloat( p->point[1] );
-				printFloat( p->point[2] );
-				//printFloat( p->t_value );
-				
-			}
-			//	printFloat(p->t_value);
-			*/
-
-			GLfloat diffuse_coefficient;
-
-		    if(p2 == NULL && l == NULL){
-			//no diffuse calculation?
-		    }
-		    else if(p2 == NULL && l != NULL){
-			//we hit the light source, do diffuse calculation
-				normalize(rays[i]->direction);
-				normalize(p->normal);
-				diffuse_coefficient = dotProduct( rays[i]->direction, p->normal );
-				//printFloat( diffuse_coefficient );
-
-				/*
-				if(diffuse_coefficient > 0.0){
-					printFloat( diffuse_coefficient );
-				}
-				else{
-					diffuse_coefficient = 0.0;
-				}
-				printFloat( diffuse_coefficient );
-				*/
-		    }
-		    else if(p2 != NULL && l == NULL){
-			//we hit an object, no diffuse calc
-		    }
-		    else if(p2->t_value < l->t_value){
-			//we hit an object, we're in shadow no light calculation
-		    }
-		    else{ //l->t_value < p->t_value
-			//we hit the light source! Diffuse calculation
-		    }
-			if( diffuse_coefficient > 0.00001){
-				diffuse[0] = p->object->material->diffuse[0]*diffuse_coefficient;
-				diffuse[1] = p->object->material->diffuse[1]*diffuse_coefficient;
-				diffuse[2] = p->object->material->diffuse[2]*diffuse_coefficient;
-			}
-			else{
-				diffuse[0] = 0.0;
-				diffuse[1] = 0.0;
-				diffuse[2] = 0.0;
-			}
-			/*
-			printFloat( diffuse[0] );
-			printFloat( diffuse[1] );
-			printFloat( diffuse[2] );
-			*/
-		}
-		/* REFLECTION
-		 
-		   Ray R = a ray in the reflection direction
-		   specular color = Trace(R, level+1, maxlevel)
-
-		   if(object is transparent)
-		   Ray T = a ray in the refraction direction
-		   Transparent_color = Trace(T, level+1, maxlevel)
-		   return ambient_color+diffuse_color+specular_color+transparent_color;
-		   */
-		//copy3(color, ambient);
-		color[0] = ambient[0]+diffuse[0];
-		color[1] = ambient[1]+diffuse[1];
-		color[2] = ambient[2]+diffuse[2];
-
-		for( i = 0; i<NUM_LIGHTS; i++){
-			free(rays[i]);
-		}
-	}
-	else{
-	    if(level==0)
-		copy3(color, BACKGROUND);
-	    else
+	GLfloat *color = (GLfloat *)malloc(3*sizeof(GLfloat));
+	if(level > MAX_RECURSION){
 		copy3(color, BLACK);
 	}
-    }
-    return color;
+	else{
+		//intersect r with all the objects in the scene
+		int i;
+
+		Intersection *p = Find_Closest_Intersect( r );
+
+		if (p != NULL) {
+			/* TODO */
+			/* Calculate ambient calculation */
+			GLfloat *ambient = (GLfloat *)malloc(3*sizeof(GLfloat));
+			ambient[0]= p->object->material->ambient[0];
+			ambient[1]= p->object->material->ambient[1];
+			ambient[2]= p->object->material->ambient[2];
+			GLfloat *diffuse = (GLfloat *)malloc(3*sizeof(GLfloat));
+
+			/* Create array from intersection point towards light sources */
+
+			Ray ** rays; /* holds array of rays pointing to all the lights*/
+			rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
+			for( i = 0; i<NUM_LIGHTS; i++){
+				rays[i] = (Ray *) malloc( sizeof( Ray ) );
+			}
+
+			MakeLightSourceRays(p, rays); /* make those rays */
+			Intersection * l;
+			Intersection * p2;
+
+			for(i = 0; i<NUM_LIGHTS; i++){
+
+				p2 = Find_Closest_Intersect( rays[i] );
+				l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
+
+				/*
+				   if( p != NULL){
+				   printFloat( p->point[0] );
+				   printFloat( p->point[1] );
+				   printFloat( p->point[2] );
+				//printFloat( p->t_value );
+
+				}
+				//	printFloat(p->t_value);
+				*/
+
+				GLfloat diffuse_coefficient;
+				normalize(rays[i]->direction);
+				normalize(p->normal);
+
+				if(p2 == NULL && l == NULL){
+					//no diffuse calculation?
+				}
+				else if(p2 == NULL && l != NULL){
+					//we hit the light source, do diffuse calculation
+					diffuse_coefficient = dotProduct( rays[i]->direction, p->normal );
+					//printFloat( diffuse_coefficient );
+
+					/*
+					   if(diffuse_coefficient > 0.0){
+					   printFloat( diffuse_coefficient );
+					   }
+					   else{
+					   diffuse_coefficient = 0.0;
+					   }
+					   printFloat( diffuse_coefficient );
+					   */
+				}
+				else if(p2 != NULL && l == NULL){
+					//we hit an object, no diffuse calc
+				}
+				else if(p2->t_value < l->t_value){
+					//we hit an object, we're in shadow no light calculation
+				}
+				else{ //l->t_value < p->t_value
+					diffuse_coefficient = dotProduct( rays[i]->direction, p->normal );
+					//we hit the light source! Diffuse calculation
+				}
+				if( diffuse_coefficient > 0.00001){
+					diffuse[0] = p->object->material->diffuse[0]*diffuse_coefficient;
+					diffuse[1] = p->object->material->diffuse[1]*diffuse_coefficient;
+					diffuse[2] = p->object->material->diffuse[2]*diffuse_coefficient;
+				}
+				else{
+					diffuse[0] = 0.0;
+					diffuse[1] = 0.0;
+					diffuse[2] = 0.0;
+				}
+				/*
+				   printFloat( diffuse[0] );
+				   printFloat( diffuse[1] );
+				   printFloat( diffuse[2] );
+				   */
+			}
+			/* REFLECTION
+			*/
+
+			GLfloat shininess = p->object->material->shininess;
+			GLfloat *reflection = (GLfloat *)malloc(3*sizeof(GLfloat));
+
+			if(shininess > 0.0f){
+				Ray * reflection_ray = (Ray *) malloc( sizeof( Ray *));
+				copy3(reflection_ray->point, p->point);
+				copy3(reflection_ray->direction, p->reflection);
+
+				reflection = Trace(reflection_ray, level+1, 0);
+				/*
+				printf("return from recursive trace: ");
+				printFloat(specular[0]);
+				*/
+				//free(reflection_ray);
+			}
+
+			/*
+			   Ray R = a ray in the reflection direction
+			   specular color = Trace(R, level+1, maxlevel)
+
+			   if(object is transparent)
+			   Ray T = a ray in the refraction direction
+			   Transparent_color = Trace(T, level+1, maxlevel)
+			   return ambient_color+diffuse_color+specular_color+transparent_color;
+			   */
+
+			color[0] = ambient[0]+diffuse[0] + reflection[0]; // + transparent[0];
+			color[1] = ambient[1]+diffuse[1] + reflection[1];
+			color[2] = ambient[2]+diffuse[2] + reflection[2];
+
+			for( i = 0; i<NUM_LIGHTS; i++){
+				//free(rays[i]);
+			}
+			/*
+			if(p->objectNumber == 1 && r->point[0] != 15){
+				
+				printf("sphere2 red: ");
+				printFloat(color[0]);
+			}
+			*/
+
+		}
+		else{
+			if(level==0){
+				copy3(color, BACKGROUND);
+			}
+			else{
+				copy3(color, BLACK);
+			}
+		}
+	}
+	return color;
 }
 
 /* creates all the objects, puts them in the Objects array */
 void InitObjects(){
-    /* SPHERE 1 */
-    Object * sphere = (Object *)malloc( sizeof(Object) );
-    sphere->material = &greenPlasticMaterials;
-    sphere->location[0] = -5.0;
-    sphere->location[1] = 0.0;
-    sphere->location[2] = -3.0;
-    sphere->radius = 3.0;
-    sphere->objectNumber = SPHERE;
-    Objects[SPHERE] = sphere;
+	/* SPHERE 1 */
+	Object * sphere = (Object *)malloc( sizeof(Object) );
+	sphere->material = &greenPlasticMaterials;
+	sphere->location[0] = -1.0;
+	sphere->location[1] = 5.0;
+	sphere->location[2] = -2.0;
+	sphere->radius = 3.0;
+	sphere->objectNumber = SPHERE;
+	Objects[SPHERE] = sphere;
 
-    /* SPHERE 2 */
-    Object * sphere2 = (Object *)malloc( sizeof(Object) );
-    sphere2->material = &redPlasticMaterials;
-    sphere2->location[0] = -1.0;
-    sphere2->location[1] = 5.0;
-    sphere2->location[2] = -2.0;
-    sphere2->radius = 2.0;
-    sphere2->objectNumber = SPHERE;
-    Objects[SPHERE2] = sphere2;
+	/* SPHERE 2 */
+	Object * sphere2 = (Object *)malloc( sizeof(Object) );
+	sphere2->material = &redPlasticMaterials;
+	sphere2->location[0] = -5.0;
+	sphere2->location[1] = 0.0;
+	sphere2->location[2] = -3.0;
+	sphere2->radius = 2.0;
+	sphere2->objectNumber = SPHERE2;
+	Objects[SPHERE2] = sphere2;
 
-    /* LIGHT 1 */
-    Light * light0 = (Light *) malloc( sizeof(Object) );
-    light0->light = &lightOne;
-    light0->location[0] = 6.0;
-    light0->location[1] = 3.0;
-    light0->location[2] = -10.0;
-    Lights[0] = light0;
+	/* LIGHT 1 */
+	Light * light0 = (Light *) malloc( sizeof(Object) );
+	light0->light = &lightOne;
+	light0->location[0] = 6.0;
+	light0->location[1] = 3.0;
+	light0->location[2] = -10.0;
+	Lights[0] = light0;
 
 }
 
 
 void MakePicture() {  
-    // This runs through the pixel grid, makes a ray from the
-    // viewer through the pixel, and traces this ray.
-    // The pixel gets the color returned by the trace.
-    Ray r; /* r is the primary ray */
-    int i, j;
-    GLfloat *color;
+	// This runs through the pixel grid, makes a ray from the
+	// viewer through the pixel, and traces this ray.
+	// The pixel gets the color returned by the trace.
+	Ray r; /* r is the primary ray */
+	int i, j;
+	GLfloat *color;
 
-    for (i =0; i < IMAGE_HEIGHT; i++) {
-	for (j = 0; j < IMAGE_WIDTH; j++ ) {
-	    MakeRay(i, j, &r);
-	    color = Trace(&r, 0, 1.0);
-	    copy3(image[i][j], color);
+	for (i =0; i < IMAGE_HEIGHT; i++) {
+		for (j = 0; j < IMAGE_WIDTH; j++ ) {
+			MakeRay(i, j, &r);
+			color = Trace(&r, 0, 1.0);
+			copy3(image[i][j], color);
+		}
 	}
-    }
 }
 
 int main(int argc, char** argv) {
-    InitObjects();
-    MakePicture();
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(700, 700);
-    glutInitWindowPosition(0, 0);
-    glutCreateWindow("Ray Traced Image");
-    glutReshapeFunc(reshape);
-    glutDisplayFunc(display);
-    init();
-    glutMainLoop();
+	InitObjects();
+	MakePicture();
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(700, 700);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("Ray Traced Image");
+	glutReshapeFunc(reshape);
+	glutDisplayFunc(display);
+	init();
+	glutMainLoop();
 }
 
 

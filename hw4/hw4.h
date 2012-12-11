@@ -100,6 +100,7 @@ Light* Lights[NUM_LIGHTS];
 typedef struct intersection {
     GLfloat point[3];
     GLfloat normal[3];
+    GLfloat reflection[3];
     int objectNumber;
     Object * object;
     GLfloat t_value;
