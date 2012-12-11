@@ -1,5 +1,5 @@
 CC=g++
-FLAGS = -O2
+FLAGS = -g -O2
 LIBS = -lglut -lGLU -lGL -lm
 GLUI_LIBS = -lglui -lglut -lGLU -lGL -lm
 TARGETS = trace hw4

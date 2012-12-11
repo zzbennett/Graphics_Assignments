@@ -229,12 +229,14 @@ Intersection *Find_Light_Intersect( Ray *ray, int light_number){
 	t_z = (z - ray->point[2])/ray->direction[2];
 	//printFloat(t);
 	
-	if(t_x < 0.01 || t_y < 0.01 || t_z < 0.01)
+	if(t_x < 0.01 || t_y < 0.01 || t_z < 0.01){
+		//puts("returning null!!");
 		return NULL;
+	}
 	
-	printFloat(t_x);
-	printFloat(t_y);
-	printFloat(t_z);
+	//printFloat(t_x);
+	//printFloat(t_y);
+	//printFloat(t_z);
 	/*
 	/rintFloat(ray->point[0]);
 	printFloat(ray->point[1]);
@@ -243,6 +245,7 @@ Intersection *Find_Light_Intersect( Ray *ray, int light_number){
 	printFloat(ray->direction[1]);
 	printFloat(ray->direction[2]);
 	*/
+	intersection->t_value = t_x;
 	return intersection;
 }
 
@@ -259,10 +262,12 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 	if (p != NULL) {
 	    /* TODO */
 	    /* Calculate ambient calculation */
-		GLfloat *ambient;
+		GLfloat *ambient = (GLfloat *)malloc(3*sizeof(GLfloat));
 		ambient[0]= p->object->material->ambient[0];
 		ambient[1]= p->object->material->ambient[1];
 		ambient[2]= p->object->material->ambient[2];
+
+		GLfloat *diffuse = (GLfloat *)malloc(3*sizeof(GLfloat));
 
 	    /* Create array from intersection point towards light sources */
 		
@@ -274,39 +279,70 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 
 	    MakeLightSourceRays(p, rays); /* make those rays */
 		Intersection * l;
+		Intersection * p2;
 
 		for(i = 0; i<NUM_LIGHTS; i++){
-		    p = Find_Closest_Intersect( rays[i] );
+
+		    p2 = Find_Closest_Intersect( rays[i] );
+		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
+
+			/*
 			if( p != NULL){
-				/*
 				printFloat( p->point[0] );
 				printFloat( p->point[1] );
 				printFloat( p->point[2] );
-				*/
 				//printFloat( p->t_value );
 				
 			}
 			//	printFloat(p->t_value);
-		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
+			*/
 
-			GLfloat *diffuse;
-		    if(p == NULL && l == NULL){
+			GLfloat diffuse_coefficient;
+
+		    if(p2 == NULL && l == NULL){
 			//no diffuse calculation?
 		    }
-		    else if(p == NULL && l != NULL){
+		    else if(p2 == NULL && l != NULL){
 			//we hit the light source, do diffuse calculation
-				//diffuse
+				normalize(rays[i]->direction);
+				normalize(p->normal);
+				diffuse_coefficient = dotProduct( rays[i]->direction, p->normal );
+				//printFloat( diffuse_coefficient );
+
+				/*
+				if(diffuse_coefficient > 0.0){
+					printFloat( diffuse_coefficient );
+				}
+				else{
+					diffuse_coefficient = 0.0;
+				}
+				printFloat( diffuse_coefficient );
+				*/
 		    }
-		    else if(p != NULL && l == NULL){
+		    else if(p2 != NULL && l == NULL){
 			//we hit an object, no diffuse calc
 		    }
-		    else if(p->t_value < l->t_value){
+		    else if(p2->t_value < l->t_value){
 			//we hit an object, we're in shadow no light calculation
 		    }
 		    else{ //l->t_value < p->t_value
 			//we hit the light source! Diffuse calculation
 		    }
-			//free( rays[i] );
+			if( diffuse_coefficient > 0.00001){
+				diffuse[0] = p->object->material->diffuse[0]*diffuse_coefficient;
+				diffuse[1] = p->object->material->diffuse[1]*diffuse_coefficient;
+				diffuse[2] = p->object->material->diffuse[2]*diffuse_coefficient;
+			}
+			else{
+				diffuse[0] = 0.0;
+				diffuse[1] = 0.0;
+				diffuse[2] = 0.0;
+			}
+			/*
+			printFloat( diffuse[0] );
+			printFloat( diffuse[1] );
+			printFloat( diffuse[2] );
+			*/
 		}
 		/* REFLECTION
 		 
@@ -318,7 +354,10 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		   Transparent_color = Trace(T, level+1, maxlevel)
 		   return ambient_color+diffuse_color+specular_color+transparent_color;
 		   */
-		copy3(color, ambient);
+		//copy3(color, ambient);
+		color[0] = ambient[0]+diffuse[0];
+		color[1] = ambient[1]+diffuse[1];
+		color[2] = ambient[2]+diffuse[2];
 
 		for( i = 0; i<NUM_LIGHTS; i++){
 			free(rays[i]);
@@ -336,22 +375,32 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 
 /* creates all the objects, puts them in the Objects array */
 void InitObjects(){
-    /* SPHERE */
+    /* SPHERE 1 */
     Object * sphere = (Object *)malloc( sizeof(Object) );
-    sphere->material = &redPlasticMaterials;
-    sphere->location[0] = 0.0;
-    sphere->location[1] = 3.0;
-    sphere->location[2] = 0.3;
+    sphere->material = &greenPlasticMaterials;
+    sphere->location[0] = -5.0;
+    sphere->location[1] = 0.0;
+    sphere->location[2] = -3.0;
     sphere->radius = 3.0;
     sphere->objectNumber = SPHERE;
     Objects[SPHERE] = sphere;
 
+    /* SPHERE 2 */
+    Object * sphere2 = (Object *)malloc( sizeof(Object) );
+    sphere2->material = &redPlasticMaterials;
+    sphere2->location[0] = -1.0;
+    sphere2->location[1] = 5.0;
+    sphere2->location[2] = -2.0;
+    sphere2->radius = 2.0;
+    sphere2->objectNumber = SPHERE;
+    Objects[SPHERE2] = sphere2;
+
     /* LIGHT 1 */
     Light * light0 = (Light *) malloc( sizeof(Object) );
     light0->light = &lightOne;
-    light0->location[0] = 2.0;
-    light0->location[1] = 1.0;
-    light0->location[2] = 10.0;
+    light0->location[0] = 6.0;
+    light0->location[1] = 3.0;
+    light0->location[2] = -10.0;
     Lights[0] = light0;
 
 }

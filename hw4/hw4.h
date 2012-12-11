@@ -15,12 +15,13 @@
 #define MIN_WEIGHT 0.01
 
 #define SPHERE 0
-#define FLOOR 1
-#define SIDE_WALL 2
-#define BACK_WALL 3
-#define POLYGON 4
+#define SPHERE2 1
+#define FLOOR 2
+#define SIDE_WALL 3
+#define BACK_WALL 4
+#define POLYGON 5
 
-#define NUM_OBJECTS 1 //only have the sphere for now
+#define NUM_OBJECTS 2 
 #define NUM_LIGHTS 1  //only one light for now
 
 typedef struct materialStruct {
@@ -38,18 +39,18 @@ materialStruct greyPlasticMaterials = {
 
 materialStruct redPlasticMaterials = {
   {0.3, 0.0, 0.0, 1.0},
-  {0.9, 0.0, 0.0, 1.0},
+  {0.9, 0.1, 0.1, 1.0},
   {0.8, 0.6, 0.6, 1.0},
   30.0};
 
 materialStruct greenPlasticMaterials = {
-  {0.3, 0.0, 0.0, 1.0},
-  {0.0, 1.0, 0.0, 0.1},
+  {0.0, 0.3, 0.0, 1.0},
+  {0.0, 0.7, 0.0, 1.0},
   {0.8, 0.6, 0.6, 1.0},
   30.0};
 
 materialStruct bluePlasticMaterials = {
-  {0.3, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.3, 1.0},
   {0.0, 0.0, 1.0, 1.0},
   {0.8, 0.6, 0.6, 1.0},
   30.0};
@@ -109,7 +110,7 @@ typedef struct intersection {
 //Intersection *(*intersect_methods[NUM_OBJECTS]) (Ray*);
 //Object * ObjectsList[NUM_OBJECTS];
 
-GLfloat ViewerPosition[3] = {15.0, 0.0, 2.0};
+GLfloat ViewerPosition[3] = {15.0, 0.0, 0.0};
 GLfloat GridX = 10, GridY = -2, GridZ = 3; // Upper left corner pixel grid 
 GLfloat GridWidth = 7, GridHeight = 7;  // dimensions of the pixel grid. 
 GLfloat PolyWidth = 4, PolyHeight = 4;  // Dimensions of a polygon with one
@@ -126,8 +127,6 @@ GLfloat YELLOW[3] = {1.0, 1.0, 0.0};
 GLfloat WHITE[3] = {0.0, 0.0, 0.0};
 GLfloat BACKGROUND[3] = {YELLOW[0], YELLOW[1], YELLOW[2]};
 
-
-int trace_finished = 0;
 
 void MakeLightSourceRay(Intersection *i, Ray *l);
 Intersection *Intersect_light_source( Ray *r, Object * object);
