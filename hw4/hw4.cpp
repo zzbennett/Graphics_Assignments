@@ -42,6 +42,21 @@ void copy3(GLfloat *x, GLfloat *y) {
     }
 }
 
+/* normalize the vector given */
+void normalize(GLfloat *vector) {
+    /* sets x = y */
+    int i;
+	GLfloat *xyz;
+    xyz[0] = vector[0];
+	xyz[1] = vector[1];
+	xyz[2] = vector[2];
+	GLfloat length = sqrt((xyz[0]*xyz[0]) + (xyz[1] * xyz[1]) + (xyz[2] * xyz[2]));
+	xyz[0] /= length;
+	xyz[1] /= length;
+	xyz[2] /= length;
+	copy3(vector, xyz);
+}
+
 GLfloat dotProduct(GLfloat * v1, GLfloat * v2){
     GLfloat ret;
     int i;
@@ -155,7 +170,7 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
     else
 	intersection->t_value = plus_t;
 
-	if(intersection->t_value < 0)
+	if(intersection->t_value < 0.01)
 		return NULL;
 
 
@@ -166,6 +181,10 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 	//printFloat(intersection->point[1]);
     intersection->point[2] = r->point[2]+(intersection->t_value*r->direction[2]);
 	//printFloat(intersection->point[2]);
+	
+	intersection->normal[0] = intersection->point[0] - object->location[0];
+	intersection->normal[1] = intersection->point[1] - object->location[1];
+	intersection->normal[2] = intersection->point[2] - object->location[2];
 
     intersection->object = object;
     intersection->objectNumber = object->objectNumber;
@@ -194,6 +213,37 @@ Intersection *Find_Closest_Intersect( Ray * r ){
 Intersection *Find_Light_Intersect( Ray *ray, int light_number){
     Intersection * intersection = (Intersection *)malloc( sizeof( Intersection ) );
     Light * light = Lights[light_number];    
+
+	if(ray->direction[0] == 0 && ray->direction[1] == 0 && ray->direction[2] == 0)
+		return NULL;
+
+	GLfloat t_x;
+	GLfloat t_y;
+	GLfloat t_z;
+	GLfloat x = light->location[0];
+	GLfloat y = light->location[1];
+	GLfloat z = light->location[2];
+
+	t_x = (x - ray->point[0])/ray->direction[0];
+	t_y = (y - ray->point[1])/ray->direction[1];
+	t_z = (z - ray->point[2])/ray->direction[2];
+	//printFloat(t);
+	
+	if(t_x < 0.01 || t_y < 0.01 || t_z < 0.01)
+		return NULL;
+	
+	printFloat(t_x);
+	printFloat(t_y);
+	printFloat(t_z);
+	/*
+	/rintFloat(ray->point[0]);
+	printFloat(ray->point[1]);
+	printFloat(ray->point[2]);
+	printFloat(ray->direction[0]);
+	printFloat(ray->direction[1]);
+	printFloat(ray->direction[2]);
+	*/
+	return intersection;
 }
 
 GLfloat *Trace(Ray *r, int level, float weight) {
@@ -209,9 +259,12 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 	if (p != NULL) {
 	    /* TODO */
 	    /* Calculate ambient calculation */
+		GLfloat *ambient;
+		ambient[0]= p->object->material->ambient[0];
+		ambient[1]= p->object->material->ambient[1];
+		ambient[2]= p->object->material->ambient[2];
 
 	    /* Create array from intersection point towards light sources */
-	    //Ray * rays[NUM_LIGHTS]; /* holds array of rays pointing to all the lights*/
 		
 	    Ray ** rays; /* holds array of rays pointing to all the lights*/
 		rays = (Ray **) malloc( NUM_LIGHTS*sizeof( Ray *));
@@ -235,11 +288,14 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 			}
 			//	printFloat(p->t_value);
 		    l = Find_Light_Intersect( rays[i], i ); /*find where ray intersects light*/
+
+			GLfloat *diffuse;
 		    if(p == NULL && l == NULL){
 			//no diffuse calculation?
 		    }
 		    else if(p == NULL && l != NULL){
 			//we hit the light source, do diffuse calculation
+				//diffuse
 		    }
 		    else if(p != NULL && l == NULL){
 			//we hit an object, no diffuse calc
@@ -252,12 +308,8 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		    }
 			//free( rays[i] );
 		}
-		//if(p->objectNumber == LIGHT){
-		/* we've hit the light source! */
-		//do diffuse calculation
-		//}
-
-		/*
+		/* REFLECTION
+		 
 		   Ray R = a ray in the reflection direction
 		   specular color = Trace(R, level+1, maxlevel)
 
@@ -266,7 +318,8 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 		   Transparent_color = Trace(T, level+1, maxlevel)
 		   return ambient_color+diffuse_color+specular_color+transparent_color;
 		   */
-		copy3(color, BLUE);
+		copy3(color, ambient);
+
 		for( i = 0; i<NUM_LIGHTS; i++){
 			free(rays[i]);
 		}
@@ -287,8 +340,8 @@ void InitObjects(){
     Object * sphere = (Object *)malloc( sizeof(Object) );
     sphere->material = &redPlasticMaterials;
     sphere->location[0] = 0.0;
-    sphere->location[1] = 0.0;
-    sphere->location[2] = 0.0;
+    sphere->location[1] = 3.0;
+    sphere->location[2] = 0.3;
     sphere->radius = 3.0;
     sphere->objectNumber = SPHERE;
     Objects[SPHERE] = sphere;
@@ -296,8 +349,8 @@ void InitObjects(){
     /* LIGHT 1 */
     Light * light0 = (Light *) malloc( sizeof(Object) );
     light0->light = &lightOne;
-    light0->location[0] = 0.0;
-    light0->location[1] = 0.0;
+    light0->location[0] = 2.0;
+    light0->location[1] = 1.0;
     light0->location[2] = 10.0;
     Lights[0] = light0;
 
