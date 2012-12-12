@@ -16,12 +16,13 @@
 
 #define SPHERE 0
 #define SPHERE2 1
-#define FLOOR 2
-#define SIDE_WALL 3
-#define BACK_WALL 4
-#define POLYGON 5
+#define SPHERE3 2
+#define FLOOR 3
+#define SIDE_WALL 4
+#define BACK_WALL 5
+#define POLYGON 6
 
-#define NUM_OBJECTS 2 
+#define NUM_OBJECTS 3 
 #define NUM_LIGHTS 1  //only one light for now
 
 typedef struct materialStruct {
@@ -126,7 +127,7 @@ GLfloat GREEN[3] = {0.0, 1.0, 0.0};
 GLfloat BLACK[3] = {0.0, 0.0, 0.0};
 GLfloat YELLOW[3] = {1.0, 1.0, 0.0};
 GLfloat WHITE[3] = {0.0, 0.0, 0.0};
-GLfloat BACKGROUND[3] = {YELLOW[0], YELLOW[1], YELLOW[2]};
+GLfloat BACKGROUND[3] = {BLACK[0], BLACK[1], BLACK[2]};
 
 
 void MakeLightSourceRay(Intersection *i, Ray *l);

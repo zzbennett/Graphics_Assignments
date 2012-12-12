@@ -126,6 +126,8 @@ Intersection *Intersect( Ray *r, Object * object){
 			return Intersect_Sphere( r, object );
 		case SPHERE2:
 			return Intersect_Sphere( r, object );
+		case SPHERE3:
+			return Intersect_Sphere( r, object );
 		default:
 			return NULL;
 	}
@@ -192,6 +194,7 @@ Intersection *Intersect_Sphere( Ray *r, Object * object ) {
 	intersection->reflection[0] = r->direction[0] + (2 * intersection->normal[0] * NdotV);
 	intersection->reflection[1] = r->direction[1] + (2 * intersection->normal[1] * NdotV);
 	intersection->reflection[2] = r->direction[2] + (2 * intersection->normal[2] * NdotV);
+	normalize(intersection->reflection);
 
 	intersection->object = object;
 	intersection->objectNumber = object->objectNumber;
@@ -368,7 +371,7 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 				printf("return from recursive trace: ");
 				printFloat(specular[0]);
 				*/
-				//free(reflection_ray);
+				free(reflection_ray);
 			}
 
 			/*
@@ -386,7 +389,7 @@ GLfloat *Trace(Ray *r, int level, float weight) {
 			color[2] = ambient[2]+diffuse[2] + reflection[2];
 
 			for( i = 0; i<NUM_LIGHTS; i++){
-				//free(rays[i]);
+				free(rays[i]);
 			}
 			/*
 			if(p->objectNumber == 1 && r->point[0] != 15){
@@ -414,27 +417,37 @@ void InitObjects(){
 	/* SPHERE 1 */
 	Object * sphere = (Object *)malloc( sizeof(Object) );
 	sphere->material = &greenPlasticMaterials;
-	sphere->location[0] = -1.0;
-	sphere->location[1] = 5.0;
-	sphere->location[2] = -2.0;
-	sphere->radius = 3.0;
+	sphere->location[0] = -5.0;
+	sphere->location[1] = 0.0;
+	sphere->location[2] = 7.0;
+	sphere->radius = 7.0;
 	sphere->objectNumber = SPHERE;
 	Objects[SPHERE] = sphere;
 
 	/* SPHERE 2 */
 	Object * sphere2 = (Object *)malloc( sizeof(Object) );
 	sphere2->material = &redPlasticMaterials;
-	sphere2->location[0] = -5.0;
+	sphere2->location[0] = 2.5;
 	sphere2->location[1] = 0.0;
-	sphere2->location[2] = -3.0;
-	sphere2->radius = 2.0;
+	sphere2->location[2] = -1.0;
+	sphere2->radius = 0.5;
 	sphere2->objectNumber = SPHERE2;
 	Objects[SPHERE2] = sphere2;
+
+	/* SPHERE 3 */
+	Object * sphere3 = (Object *)malloc( sizeof(Object) );
+	sphere3->material = &bluePlasticMaterials;
+	sphere3->location[0] = 2.5;
+	sphere3->location[1] = 2.0;
+	sphere3->location[2] = -1.5;
+	sphere3->radius = 0.5;
+	sphere3->objectNumber = SPHERE3;
+	Objects[SPHERE3] = sphere3;
 
 	/* LIGHT 1 */
 	Light * light0 = (Light *) malloc( sizeof(Object) );
 	light0->light = &lightOne;
-	light0->location[0] = 6.0;
+	light0->location[0] = 5.0;
 	light0->location[1] = 3.0;
 	light0->location[2] = -10.0;
 	Lights[0] = light0;
