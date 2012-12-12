@@ -1,0 +1,13 @@
+Liz Bennett
+CS357 Computer Graphics
+Assignment 4 README
+
+The scence is basically just a big green sphere (earth?) with two smaller balls
+sort of bouncing on top of it. The main interplay between objects and light that
+I am trying to showcase is the shadow that is cast on earth from the light source
+which is high above the spheres. I also implemented reflection, although it is not
+very realistic looking. I never got around to specular lighting, so that's why 
+everything looks kind of dull. I also did not do refraction.
+
+I affirm that I have adhered to the honor code in this assignment.
+Liz Bennett
