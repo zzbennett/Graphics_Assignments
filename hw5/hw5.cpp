@@ -97,8 +97,18 @@ void buildObject(float radius, float height, GLfloat data[13][3], int object_num
 	  }
 	  break;
       case DORSAL:
+	  for (i = 0; i < 13; i++ ) {
+	      data[i][0] = dorsal[i][0]*radius;
+	      data[i][1] = dorsal[i][1]*radius;
+	      data[i][2] = height;
+	  }
 	  break;
       case SIDEDORSAL:
+	  for (i = 0; i < 13; i++ ) {
+	      data[i][0] = side_dorsal[i][0]*radius;
+	      data[i][1] = side_dorsal[i][1]*radius;
+	      data[i][2] = height;
+	  }
 	  break;
   }
 }
@@ -128,6 +138,28 @@ void buildSurfaceOfRotation( ) {
   buildObject( 0.5, 6.0, wingControlPoints[7], WING );
   buildObject( 0.25, 5.5, wingControlPoints[8], WING );
   buildObject( 0.0, 5.0, wingControlPoints[9], WING );
+
+  	/**** DORSAL ****/
+
+  buildObject( 0.0, 3.5,  dorsalControlPoints[0], DORSAL );
+  buildObject( 0.25, 3.0, dorsalControlPoints[1], DORSAL );
+  buildObject( 0.5, 2.5, dorsalControlPoints[2], DORSAL );
+  buildObject( 0.5, 2.0, dorsalControlPoints[3], DORSAL );
+  buildObject( 0.5, 1.5, dorsalControlPoints[4], DORSAL );
+  buildObject( 0.5, 1.0, dorsalControlPoints[5], DORSAL );
+  buildObject( 0.25, 0.5, dorsalControlPoints[6], DORSAL );
+  buildObject( 0.0, 0.0,  dorsalControlPoints[7], DORSAL );
+  
+  	/**** SIDE DORSALS ****/
+
+  buildObject( 0.0, 2.0,  sideDorsalControlPoints[0], SIDEDORSAL );
+  buildObject( 0.25, 1.75, sideDorsalControlPoints[1], SIDEDORSAL );
+  buildObject( 0.5, 1.5,  sideDorsalControlPoints[2], SIDEDORSAL );
+  buildObject( 0.5, 1.25,  sideDorsalControlPoints[3], SIDEDORSAL );
+  buildObject( 0.5, 1.0,  sideDorsalControlPoints[4], SIDEDORSAL );
+  buildObject( 0.5, 0.75,  sideDorsalControlPoints[5], SIDEDORSAL );
+  buildObject( 0.25, 0.25, sideDorsalControlPoints[6], SIDEDORSAL );
+  buildObject( 0.0, 0.0,  sideDorsalControlPoints[7], SIDEDORSAL );
 }
 
 void display(void) {
@@ -188,6 +220,55 @@ void display(void) {
     } 
   }
   glPopMatrix();
+
+  /**** DORSAL ****/
+  glPushMatrix();
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  glRotatef(-90, 0.0, 0.0, 1.0);
+  glTranslatef(-0.5, 0.0, 1.5);
+  for (row=0; row < 4; row++) {
+    for (col = 0; col < 4; col++) {
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &dorsalControlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    } 
+  }
+  glPopMatrix();
+
+  /**** LEFT DORSAL ****/
+  glPushMatrix();
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  glRotatef(180, 0.0, 0.0, 1.0);
+  glTranslatef(-0.5, 0.0, 1.5);
+  for (row=0; row < 4; row++) {
+    for (col = 0; col < 4; col++) {
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    } 
+  }
+  glPopMatrix();
+
+  /**** RIGHT DORSAL ****/
+  glPushMatrix();
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  //glRotatef(, 0.0, 0.0, 1.0);
+  glTranslatef(-0.5, 0.0, 1.5);
+  for (row=0; row < 4; row++) {
+    for (col = 0; col < 4; col++) {
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    } 
+  }
+  glPopMatrix();
+
   glutSwapBuffers();
 }
 
