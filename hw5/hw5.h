@@ -3,8 +3,12 @@
 #include <GL/glut.h>
 #include <GL/glui.h>
 
+#define BODY 0
+#define WING 1
+#define DORSAL 2
+#define SIDEDORSAL 3
 
-GLfloat circle[13][3] = {   {-1.0, 0.0, 0.0},
+GLfloat body[13][3] = {   {-1.0, 0.0, 0.0},
 			    {-1.0, 0.5, 0.0},
 			    {-0.5, 1.0, 0.0},
 			    {0.0, 1.0, 0.0}, 
@@ -19,8 +23,7 @@ GLfloat circle[13][3] = {   {-1.0, 0.0, 0.0},
 			    {-1.0, 0.0, 0.0}};
 
 /* Nice wing coordinates*/
-/*
-GLfloat circle[13][3] = {   {-10.0, 0.0, 0.0},
+GLfloat wing[13][3] = {   {-12.0, 0.0, 0.0},
 			    {-1.0, 0.5, 0.0},
 			    {-0.5, 1.0, 0.0},
 			    {0.0, 1.0, 0.0}, 
@@ -32,11 +35,12 @@ GLfloat circle[13][3] = {   {-10.0, 0.0, 0.0},
 			    {0.0, -1.0, 0.0},
 			    {-0.5, -1.0, 0.0},
 			    {-1.0, -0.5, 0.0},
-			    {-10.0, 0.0, 0.0}};
-			    */
+			    {-12.0, 0.0, 0.0}};
+
 #define N 10 
 #define SIZE 3*N+1
-GLfloat controlPoints[SIZE][13][3];
+GLfloat bodyControlPoints[SIZE][13][3];
+GLfloat wingControlPoints[SIZE][13][3];
 GLfloat theta = 0.0;
 
 GLfloat *textureMap;

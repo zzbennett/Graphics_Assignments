@@ -76,29 +76,58 @@ void makeTextures() {
 }
 
 
-void buildCircle(float radius, float height, GLfloat data[13][3]) {
+void buildObject(float radius, float height, GLfloat data[13][3], int object_num) {
   int i;
 
-  for (i = 0; i < 13; i++ ) {
-    data[i][0] = circle[i][0]*radius;
-    data[i][1] = circle[i][1]*radius;
-    data[i][2] = height;
+  //GLfloat object[13][3];
+
+  switch(object_num){
+      case BODY:
+	  for (i = 0; i < 13; i++ ) {
+	      data[i][0] = body[i][0]*radius;
+	      data[i][1] = body[i][1]*radius;
+	      data[i][2] = height;
+	  }
+	  break;
+      case WING:
+	  for (i = 0; i < 13; i++ ) {
+	      data[i][0] = wing[i][0]*radius;
+	      data[i][1] = wing[i][1]*radius;
+	      data[i][2] = height;
+	  }
+	  break;
+      case DORSAL:
+	  break;
+      case SIDEDORSAL:
+	  break;
   }
 }
 
 void buildSurfaceOfRotation( ) {
-  buildCircle( 0.0, 14.0, controlPoints[0] );
-  buildCircle( 0.5, 13.5, controlPoints[1] );
-  buildCircle( 1.15, 13.0, controlPoints[2] );
-  buildCircle( 1.15, 9.0, controlPoints[3] );
-  buildCircle( 1.15, 8.0, controlPoints[4] );
-  buildCircle( 1.15, 7.0, controlPoints[5] );
-  buildCircle( 1.15, 6.0, controlPoints[6] );
-  buildCircle( 1.15, 2.0, controlPoints[7] );
-  buildCircle( 0.5, 1.5, controlPoints[8] );
-  buildCircle( 0.0, 1.0, controlPoints[9] );
-  //buildCircle( 0.0, 0.0, controlPoints[10] );
-  //buildCircle( 1.5, 2.0, controlPoints[11] );
+    /**** BODY ****/
+  buildObject( 0.0, 14.0, bodyControlPoints[0], BODY );
+  buildObject( 0.5, 13.5, bodyControlPoints[1], BODY);
+  buildObject( 1.15, 13.0, bodyControlPoints[2], BODY );
+  buildObject( 1.15, 9.0, bodyControlPoints[3], BODY );
+  buildObject( 1.15, 8.0, bodyControlPoints[4], BODY );
+  buildObject( 1.15, 7.0, bodyControlPoints[5], BODY );
+  buildObject( 1.15, 6.0, bodyControlPoints[6], BODY );
+  buildObject( 1.15, 2.0, bodyControlPoints[7], BODY );
+  buildObject( 0.5, 1.5, bodyControlPoints[8], BODY );
+  buildObject( 0.0, 1.0, bodyControlPoints[9], BODY );
+
+    /**** WING ****/
+
+  buildObject( 0.0, 9.5, wingControlPoints[0], WING );
+  buildObject( 0.25, 9.0, wingControlPoints[1], WING);
+  buildObject( 0.75, 8.5, wingControlPoints[2], WING );
+  buildObject( 0.75, 8.0, wingControlPoints[3], WING );
+  buildObject( 0.75, 7.5, wingControlPoints[4], WING );
+  buildObject( 0.75, 7.0, wingControlPoints[5], WING );
+  buildObject( 0.75, 6.5, wingControlPoints[6], WING );
+  buildObject( 0.5, 6.0, wingControlPoints[7], WING );
+  buildObject( 0.25, 5.5, wingControlPoints[8], WING );
+  buildObject( 0.0, 5.0, wingControlPoints[9], WING );
 }
 
 void display(void) {
@@ -115,19 +144,50 @@ void display(void) {
   buildSurfaceOfRotation();
 
   glBindTexture(GL_TEXTURE_2D, texID);
+  
+  /**** BODY ****/
   glPushMatrix();
   //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
-      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &controlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &bodyControlPoints[3*row][3*col][0]);
       glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
   }
   glPopMatrix();
-  
+
+  /**** LEFT WING ****/
+  glPushMatrix();
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  glRotatef(180, 0.0, 0.0, 1.0);
+  for (row=0; row < 4; row++) {
+    for (col = 0; col < 4; col++) {
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &wingControlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    } 
+  }
+  glPopMatrix();
+
+  /**** RIGHT WING ****/
+  glPushMatrix();
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  //glRotatef(180, 0.0, 0.0, 1.0);
+  for (row=0; row < 4; row++) {
+    for (col = 0; col < 4; col++) {
+      glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &wingControlPoints[3*row][3*col][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+      glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    } 
+  }
+  glPopMatrix();
   glutSwapBuffers();
 }
 
