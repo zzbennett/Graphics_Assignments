@@ -87,13 +87,18 @@ void buildCircle(float radius, float height, GLfloat data[13][3]) {
 }
 
 void buildSurfaceOfRotation( ) {
-  buildCircle( 1.0, 8.0, controlPoints[0] );
-  buildCircle( 1.0, 7.0, controlPoints[1] );
-  buildCircle( 1.5, 6.0, controlPoints[2] );
-  buildCircle( 1.5, 5.0, controlPoints[3] );
-  buildCircle( 1.5, 4.0, controlPoints[4] );
-  buildCircle( 2.5, 3.0, controlPoints[5] );
-  buildCircle( 2.5, 2.0, controlPoints[6] );
+  buildCircle( 0.0, 14.0, controlPoints[0] );
+  buildCircle( 0.5, 13.5, controlPoints[1] );
+  buildCircle( 1.15, 13.0, controlPoints[2] );
+  buildCircle( 1.15, 9.0, controlPoints[3] );
+  buildCircle( 1.15, 8.0, controlPoints[4] );
+  buildCircle( 1.15, 7.0, controlPoints[5] );
+  buildCircle( 1.15, 6.0, controlPoints[6] );
+  buildCircle( 1.15, 2.0, controlPoints[7] );
+  buildCircle( 0.5, 1.5, controlPoints[8] );
+  buildCircle( 0.0, 1.0, controlPoints[9] );
+  //buildCircle( 0.0, 0.0, controlPoints[10] );
+  //buildCircle( 1.5, 2.0, controlPoints[11] );
 }
 
 void display(void) {
@@ -111,8 +116,9 @@ void display(void) {
 
   glBindTexture(GL_TEXTURE_2D, texID);
   glPushMatrix();
-  glRotatef(theta, 0.0, 0.0, 1.0);
-  for (row=0; row < 2; row++) {
+  //glRotatef(theta, 0.0, 0.0, 1.0);
+  glRotatef(90, 1.0, 0.0, 0.0);
+  for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &controlPoints[3*row][3*col][0]);
       glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
