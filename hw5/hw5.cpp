@@ -28,7 +28,7 @@ void makeTextureMap() {
   GLfloat *buffer;
 
   /* first read the file into a buffer */
-  fd = fopen("spots.ppm", "r");
+  fd = fopen("clouds.ppm", "r");
   fscanf( fd, "%s", string);
   if (string[0] !=  'P' || string[1] != '6'){
     printf( "sorry; not a ppm file\n" );
@@ -60,8 +60,8 @@ void makeTextureMap() {
   }
   /* now make the actual texture map, which has dimensions that */
   /* are powers of 2 */
-  textureMap = (GLfloat *)malloc(sizeof(GLfloat)*256*256*3);
-  gluScaleImage(GL_RGB, m, n, GL_FLOAT, buffer, 256, 256, GL_FLOAT, textureMap); 
+  textureMap = (GLfloat *)malloc(sizeof(GLfloat)*1024*2048*3);
+  gluScaleImage(GL_RGB, m, n, GL_FLOAT, buffer, 1024, 2048, GL_FLOAT, textureMap); 
 }
 void makeTextures() {
   glGenTextures(1, &texID);
@@ -72,7 +72,7 @@ void makeTextures() {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
- glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, textureMap);
+ glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 2048, 0, GL_RGB, GL_FLOAT, textureMap);
 }
 
 
@@ -127,7 +127,6 @@ void buildSurfaceOfRotation( ) {
   buildObject( 0.0, 1.0, bodyControlPoints[9], BODY );
 
     /**** WING ****/
-
   buildObject( 0.0, 9.5, wingControlPoints[0], WING );
   buildObject( 0.25, 9.0, wingControlPoints[1], WING);
   buildObject( 0.75, 8.5, wingControlPoints[2], WING );
@@ -140,7 +139,6 @@ void buildSurfaceOfRotation( ) {
   buildObject( 0.0, 5.0, wingControlPoints[9], WING );
 
   	/**** DORSAL ****/
-
   buildObject( 0.0, 3.5,  dorsalControlPoints[0], DORSAL );
   buildObject( 0.25, 3.0, dorsalControlPoints[1], DORSAL );
   buildObject( 0.5, 2.5, dorsalControlPoints[2], DORSAL );
@@ -151,7 +149,6 @@ void buildSurfaceOfRotation( ) {
   buildObject( 0.0, 0.0,  dorsalControlPoints[7], DORSAL );
   
   	/**** SIDE DORSALS ****/
-
   buildObject( 0.0, 2.0,  sideDorsalControlPoints[0], SIDEDORSAL );
   buildObject( 0.25, 1.75, sideDorsalControlPoints[1], SIDEDORSAL );
   buildObject( 0.5, 1.5,  sideDorsalControlPoints[2], SIDEDORSAL );
@@ -177,6 +174,10 @@ void display(void) {
 
   glBindTexture(GL_TEXTURE_2D, texID);
   
+  /** AIRPLANE STUFF **/
+  glPushMatrix();
+  glTranslatef(0.0, 0.0, -5.0);
+  
   /**** BODY ****/
   glPushMatrix();
   //glRotatef(theta, 0.0, 0.0, 1.0);
@@ -184,7 +185,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &bodyControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -199,11 +200,27 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &wingControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
   }
+  glPopMatrix();
+
+  /* DECAL */
+  glPushMatrix();
+  glTranslatef(8.0, 0.0, 0.0);
+  glTranslatef(0.0, -6.5, 0.0);
+  glTranslatef(0.0, 0.0, 0.05);
+  glRotatef(6.35, 1.0, 1.0, 0.0);
+  glRotatef(90, 0.0, 0.0, 1.0);
+  glRotatef(25, 0.0, 1.0, 0.0);
+  glBegin(GL_POLYGON);
+  glVertex3f(0, 0, 0);
+  glVertex3f(0, 7, 0);
+  glVertex3f(2, 7, 0);
+  glVertex3f(0.15, 0, 0);
+  glEnd();
   glPopMatrix();
 
   /**** RIGHT WING ****/
@@ -214,12 +231,47 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &wingControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
   }
   glPopMatrix();
+
+  /* DECAL */
+  glPushMatrix();
+  glTranslatef(-8.0, 0.0, 0.0);
+  glTranslatef(0.0, -6.5, 0.0);
+  glTranslatef(0.0, 0.0, 0.20);
+  glRotatef(180, 0.0, 0.0, 1.0);
+  glRotatef(6.35, 1.0, 1.0, 0.0);
+  glRotatef(90, 0.0, 0.0, 1.0);
+  glRotatef(-25, 0.0, 1.0, 0.0);
+  glBegin(GL_POLYGON);
+  glVertex3f(0, 0, 0);
+  glVertex3f(0, 7, 0);
+  glVertex3f(-2, 7, 0);
+  glVertex3f(-0.15, 0, 0);
+  glEnd();
+  glPopMatrix();
+  /*
+  glPushMatrix();
+  //glRotatef(180, 1.0, 1.0, 0.0);
+  //glRotatef(180, 0.0, 1.0, 0.0);
+  glTranslatef(-8.0, 0.0, 0.0);
+  glTranslatef(0.0, -6.5, 0.0);
+  glTranslatef(0.0, 0.0, 0.05);
+  glRotatef(-6.35, 1.0, 1.0, 0.0);
+  glRotatef(90, 0.0, 0.0, 1.0);
+  glRotatef(25, 0.0, 1.0, 0.0);
+  glBegin(GL_POLYGON);
+  glVertex3f(0, 0, 0);
+  glVertex3f(0, -7, 0);
+  glVertex3f(-2, -7, 0);
+  glVertex3f(-0.15, 0, 0);
+  glEnd();
+  glPopMatrix();
+  */
 
   /**** DORSAL ****/
   glPushMatrix();
@@ -230,7 +282,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &dorsalControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -246,7 +298,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -262,12 +314,35 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
-      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
   }
   glPopMatrix();
+
+  glPopMatrix(); /* end airplane stuff */
+
+  /**** BACKGROUND ****/
+  glPushMatrix();
+  //glRotatef(180, 0.0, 1.0, 0.0);
+  //glRotatef(45.0, 0.0, 1.0, 0.0);
+  glRotatef(-90.0, 1.0, 0.0, 0.0);
+  glTranslatef(0.0, 0.0, -50);
+  //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glBegin(GL_POLYGON);
+	  glTexCoord2f(0,0);
+	  glVertex3f(-100, -50, 0);
+	  glTexCoord2f(1,0);
+	  glVertex3f(100, -50, 0);
+	  glTexCoord2f(1,1);
+	  glVertex3f(100, 50, 0);
+	  glTexCoord2f(0,1);
+	  glVertex3f(-100, 50, 0);
+	  glEnd();
+  //gluDisk(p, 0, 10.0, 4, 4);
+  glPopMatrix();
+  
 
   glutSwapBuffers();
 }
@@ -332,6 +407,7 @@ void eye_callback(int ID) {
 
 int main(int argc, char *argv[]) {
   int i, j, k, m, n;
+  p = gluNewQuadric();
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

@@ -77,8 +77,17 @@ int n, m;
 GLuint texID;
 
 /* GLUI variables */
-GLfloat X = 10.0;
-GLfloat Y = 15.0;
-GLfloat Z = 15.0;
+/*
+GLfloat X = 8.0;
+GLfloat Y = 45.0;
+GLfloat Z = 8.0;
+*/
+GLfloat X = -38.0;
+GLfloat Y = 2.0;
+GLfloat Z = 17.0;
+
+GLUquadricObj *p, *q;  
+
+GLfloat far_z_plane = 1000.0;
 
 int main_window;
