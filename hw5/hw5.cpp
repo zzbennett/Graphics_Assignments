@@ -44,7 +44,6 @@ void makeTextureMaps() {
   ungetc(c, fd);
   fscanf( fd, "%u %u %u", &m, &n, &max);
   skipToEndOfLine(fd);
-  printf( "sizes %d x %d\n", n, m);
   buffer = (GLfloat *)malloc(sizeof(GLfloat)*n*m*3);
 
   for (int i = 0; i < n; i++ ) 
@@ -81,7 +80,6 @@ void makeTextureMaps() {
   ungetc(c, fd);
   fscanf( fd, "%u %u %u", &m, &n, &max);
   skipToEndOfLine(fd);
-  printf( "sizes %d x %d\n", n, m);
   buffer = (GLfloat *)malloc(sizeof(GLfloat)*n*m*3);
 
   for (int i = 0; i < n; i++ ) 
@@ -121,7 +119,7 @@ void makeTextures(){
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, textureMapAirplane);
 }
 
@@ -148,7 +146,7 @@ void switchTextures(int texture) {
 	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, textureMapAirplane);
 	    break;
     }
@@ -255,11 +253,12 @@ void display(void) {
   
   /** AIRPLANE STUFF **/
   glPushMatrix();
-  glTranslatef(0.0, 0.0, -5.0);
+  glTranslatef(-35, 35, -7.0);
+  glTranslatef(theta, -theta, theta/5);
+  glRotatef(45, 0.0, 0.0, 1.0);
   
   /**** BODY ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
@@ -273,7 +272,6 @@ void display(void) {
 
   /**** LEFT WING ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   glRotatef(180, 0.0, 0.0, 1.0);
   for (row=0; row < 4; row++) {
@@ -289,7 +287,6 @@ void display(void) {
 
   /**** RIGHT WING ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   //glRotatef(180, 0.0, 0.0, 1.0);
   for (row=0; row < 4; row++) {
@@ -352,7 +349,6 @@ void display(void) {
 
   /**** DORSAL ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   glRotatef(-90, 0.0, 0.0, 1.0);
   glTranslatef(-0.5, 0.0, 1.5);
@@ -368,7 +364,6 @@ void display(void) {
 
   /**** LEFT DORSAL ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   glRotatef(180, 0.0, 0.0, 1.0);
   glTranslatef(-0.5, 0.0, 1.5);
@@ -384,7 +379,6 @@ void display(void) {
 
   /**** RIGHT DORSAL ****/
   glPushMatrix();
-  //glRotatef(theta, 0.0, 0.0, 1.0);
   glRotatef(90, 1.0, 0.0, 0.0);
   //glRotatef(, 0.0, 0.0, 1.0);
   glTranslatef(-0.5, 0.0, 1.5);
@@ -438,12 +432,12 @@ void myReshape(int w, int h) {
 }
 
 void myInit() {
-  GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
-  GLfloat diffuse[] = {1.0, 1.0, 1.0, 1.0};
+  GLfloat ambient[] = {0.4, 0.2, 0.2, 1.0};
+  GLfloat diffuse[] = {1.0, 0.2, 0.2, 1.0};
   GLfloat specular[] = {1.0, 1.0, 1.0, 1.0};
   GLfloat position[] = {30.0, 15.0, 10.0, 1.0};
-  GLfloat mat_ambient[] = {0.2, 0.2, 0.2, 1.0};
-  GLfloat mat_diffuse[] = {0.8, 0.8, 0.8, 1.0};
+  GLfloat mat_ambient[] = {0.4, 0.2, 0.2, 1.0};
+  GLfloat mat_diffuse[] = {0.9, 0.3, 0.3, 1.0};
   GLfloat mat_specular[] = {0.4, 0.4, 0.4, 1.0};
   GLfloat mat_shininess[] = {50.0};
 
@@ -476,9 +470,9 @@ void myInit() {
 }
 
 void spin() {
-  theta += 0.1;
+  theta += 0.25;
   glutPostRedisplay();
-
+  display();
 }
 
 void eye_callback(int ID) {
@@ -505,11 +499,11 @@ int main(int argc, char *argv[]) {
 
    GLUI_Rollout *eye_rollout = control_panel->add_rollout("Camera Position", false );
   GLUI_Spinner *x_spin=control_panel->add_spinner_to_panel(eye_rollout, "X", GLUI_SPINNER_FLOAT, &X, 1, eye_callback);
-  x_spin->set_float_limits(-100.0, 100.0, GLUI_LIMIT_CLAMP);
+  x_spin->set_float_limits(-15.0, 15.0, GLUI_LIMIT_CLAMP);
   GLUI_Spinner *y_spin=control_panel->add_spinner_to_panel(eye_rollout, "Y", GLUI_SPINNER_FLOAT, &Y, 2, eye_callback);
-  y_spin->set_float_limits(-100.0, 100.0, GLUI_LIMIT_CLAMP);
+  y_spin->set_float_limits(20.0, 60.0, GLUI_LIMIT_CLAMP);
   GLUI_Spinner *z_spin=control_panel->add_spinner_to_panel(eye_rollout, "Z", GLUI_SPINNER_FLOAT, &Z, 3, eye_callback);
-  z_spin->set_float_limits(-300.0, 300.0, GLUI_LIMIT_CLAMP);
+  z_spin->set_float_limits(4.0, 10.0, GLUI_LIMIT_CLAMP);
 
   control_panel->set_main_gfx_window(main_window); 
   GLUI_Master.set_glutIdleFunc(spin);

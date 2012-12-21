@@ -84,7 +84,7 @@ GLuint cloudTexID;
 /* GLUI variables */
 GLfloat X = 8.0;
 GLfloat Y = 45.0;
-GLfloat Z = 8.0;
+GLfloat Z = 10.0;
 
 GLUquadricObj *p, *q;  
 
