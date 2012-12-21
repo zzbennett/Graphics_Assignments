@@ -17,7 +17,7 @@ void skipToEndOfLine(FILE *fd) {
 }
 
 
-void makeTextureMap() {
+void makeTextureMaps() {
   FILE *fd;
   char string[100];
   char c;
@@ -27,6 +27,7 @@ void makeTextureMap() {
   GLubyte br, bg, bb;
   GLfloat *buffer;
 
+  /*******CLOUD TEXTURE***********/
   /* first read the file into a buffer */
   fd = fopen("clouds.ppm", "r");
   fscanf( fd, "%s", string);
@@ -60,19 +61,98 @@ void makeTextureMap() {
   }
   /* now make the actual texture map, which has dimensions that */
   /* are powers of 2 */
-  textureMap = (GLfloat *)malloc(sizeof(GLfloat)*1024*2048*3);
-  gluScaleImage(GL_RGB, m, n, GL_FLOAT, buffer, 1024, 2048, GL_FLOAT, textureMap); 
-}
-void makeTextures() {
-  glGenTextures(1, &texID);
+  textureMapCloud = (GLfloat *)malloc(sizeof(GLfloat)*1024*2048*3);
+  gluScaleImage(GL_RGB, m, n, GL_FLOAT, buffer, 1024, 2048, GL_FLOAT, textureMapCloud); 
+  free(buffer);
 
-  glBindTexture(GL_TEXTURE_2D, texID);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
- glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 2048, 0, GL_RGB, GL_FLOAT, textureMap);
+  /*******AIRPLANE TEXTURE***********/
+  fd = fopen("polka_dots.ppm", "r");
+  fscanf( fd, "%s", string);
+  if (string[0] !=  'P' || string[1] != '6'){
+    printf( "sorry; not a ppm file\n" );
+    exit(0);
+  }
+  skipToEndOfLine(fd);
+  fscanf( fd, "%c", &c); /* reads first char of next line */
+  while (c == '#') {
+    skipToEndOfLine(fd);
+    fscanf(fd, "%c", &c); /* reads first char of next line */
+  }
+  ungetc(c, fd);
+  fscanf( fd, "%u %u %u", &m, &n, &max);
+  skipToEndOfLine(fd);
+  printf( "sizes %d x %d\n", n, m);
+  buffer = (GLfloat *)malloc(sizeof(GLfloat)*n*m*3);
+
+  for (int i = 0; i < n; i++ ) 
+    for (int j = 0; j < m; j++){
+      fread(&br, 1, 1, fd);
+      fread(&bg, 1, 1, fd);
+      fread(&bb, 1, 1, fd);
+      red = (int)br;
+      green = (int)bg;
+      blue =(int)bb;
+    buffer[3*i*m + 3*j] = red/255.0;
+    buffer[3*i*m + 3*j+1] = green/255.0;
+    buffer[3*i*m + 3*j+2] = blue/255.0;
+  }
+  /* now make the actual texture map, which has dimensions that */
+  /* are powers of 2 */
+  textureMapAirplane = (GLfloat *)malloc(sizeof(GLfloat)*256*256*3);
+  gluScaleImage(GL_RGB, m, n, GL_FLOAT, buffer, 256, 256, GL_FLOAT, textureMapAirplane); 
+  free(buffer);
+}
+
+void makeTextures(){
+    /** CLOUD **/
+    glGenTextures(1, &cloudTexID);
+    //glBindTexture(GL_TEXTURE_2D, cloudTexID);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 2048, 0, GL_RGB, GL_FLOAT, textureMapCloud);
+
+    /** AIRPLANE **/
+    glGenTextures(2, &airplaneTexID);
+    //glBindTexture(GL_TEXTURE_2D, airplaneTexID);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, textureMapAirplane);
+}
+
+void switchTextures(int texture) {
+    switch(texture){
+	case CLOUD:
+	    //glDisable(GL_TEXTURE_2D);
+	    glEnable(GL_TEXTURE_2D);
+	    //glGenTextures(1, &cloudTexID);
+	    glBindTexture(GL_TEXTURE_2D, cloudTexID);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 2048, 0, GL_RGB, GL_FLOAT, textureMapCloud);
+	    break;
+	case AIRPLANE:
+	    //glDisable(GL_TEXTURE_2D);
+	    glEnable(GL_TEXTURE_2D);
+	    //glGenTextures(2, &airplaneTexID);
+	    glBindTexture(GL_TEXTURE_2D, airplaneTexID);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, textureMapAirplane);
+	    break;
+    }
+
 }
 
 
@@ -172,7 +252,6 @@ void display(void) {
   gluLookAt(X, Y, Z, 0.0, 0.0, 5.0, 0.0,  0.0, 1.0);
   buildSurfaceOfRotation();
 
-  glBindTexture(GL_TEXTURE_2D, texID);
   
   /** AIRPLANE STUFF **/
   glPushMatrix();
@@ -207,21 +286,6 @@ void display(void) {
   }
   glPopMatrix();
 
-  /* DECAL */
-  glPushMatrix();
-  glTranslatef(8.0, 0.0, 0.0);
-  glTranslatef(0.0, -6.5, 0.0);
-  glTranslatef(0.0, 0.0, 0.05);
-  glRotatef(6.35, 1.0, 1.0, 0.0);
-  glRotatef(90, 0.0, 0.0, 1.0);
-  glRotatef(25, 0.0, 1.0, 0.0);
-  glBegin(GL_POLYGON);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 7, 0);
-  glVertex3f(2, 7, 0);
-  glVertex3f(0.15, 0, 0);
-  glEnd();
-  glPopMatrix();
 
   /**** RIGHT WING ****/
   glPushMatrix();
@@ -238,7 +302,33 @@ void display(void) {
   }
   glPopMatrix();
 
-  /* DECAL */
+  /*
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, airplaneTexID);
+  */
+  switchTextures(AIRPLANE);
+
+  /* LEFT DECAL */
+  glPushMatrix();
+  glTranslatef(8.0, 0.0, 0.0);
+  glTranslatef(0.0, -6.5, 0.0);
+  glTranslatef(0.0, 0.0, 0.05);
+  glRotatef(6.35, 1.0, 1.0, 0.0);
+  glRotatef(90, 0.0, 0.0, 1.0);
+  glRotatef(25, 0.0, 1.0, 0.0);
+  glBegin(GL_POLYGON);
+	  glTexCoord2f(0,0);
+  glVertex3f(0, 0, 0);
+	  glTexCoord2f(1,0);
+  glVertex3f(0, 7, 0);
+	  glTexCoord2f(1,1);
+  glVertex3f(2, 7, 0);
+	  glTexCoord2f(0,1);
+  glVertex3f(0.15, 0, 0);
+  glEnd();
+  glPopMatrix();
+
+  /* RIGHT DECAL */
   glPushMatrix();
   glTranslatef(-8.0, 0.0, 0.0);
   glTranslatef(0.0, -6.5, 0.0);
@@ -248,30 +338,17 @@ void display(void) {
   glRotatef(90, 0.0, 0.0, 1.0);
   glRotatef(-25, 0.0, 1.0, 0.0);
   glBegin(GL_POLYGON);
+	  glTexCoord2f(0,0);
   glVertex3f(0, 0, 0);
+	  glTexCoord2f(1,0);
   glVertex3f(0, 7, 0);
+	  glTexCoord2f(1,1);
   glVertex3f(-2, 7, 0);
+	  glTexCoord2f(0,1);
   glVertex3f(-0.15, 0, 0);
   glEnd();
   glPopMatrix();
-  /*
-  glPushMatrix();
-  //glRotatef(180, 1.0, 1.0, 0.0);
-  //glRotatef(180, 0.0, 1.0, 0.0);
-  glTranslatef(-8.0, 0.0, 0.0);
-  glTranslatef(0.0, -6.5, 0.0);
-  glTranslatef(0.0, 0.0, 0.05);
-  glRotatef(-6.35, 1.0, 1.0, 0.0);
-  glRotatef(90, 0.0, 0.0, 1.0);
-  glRotatef(25, 0.0, 1.0, 0.0);
-  glBegin(GL_POLYGON);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, -7, 0);
-  glVertex3f(-2, -7, 0);
-  glVertex3f(-0.15, 0, 0);
-  glEnd();
-  glPopMatrix();
-  */
+
 
   /**** DORSAL ****/
   glPushMatrix();
@@ -282,7 +359,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &dorsalControlPoints[3*row][3*col][0]);
-      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -298,7 +375,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
-      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -314,7 +391,7 @@ void display(void) {
   for (row=0; row < 4; row++) {
     for (col = 0; col < 4; col++) {
       glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0.0, 1.0, 39, 4, &sideDorsalControlPoints[3*row][3*col][0]);
-      //glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
+      glMap2f(GL_MAP2_TEXTURE_COORD_2, 0.0, 1.0, 2, 2, 0.0, 1.0, 4, 2, &texel[0][0][0]);
       glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
       glEvalMesh2(GL_FILL, 0, 20, 0, 20);
     } 
@@ -322,6 +399,8 @@ void display(void) {
   glPopMatrix();
 
   glPopMatrix(); /* end airplane stuff */
+
+  switchTextures(CLOUD);
 
   /**** BACKGROUND ****/
   glPushMatrix();
@@ -345,6 +424,7 @@ void display(void) {
   
 
   glutSwapBuffers();
+  glDisable(GL_TEXTURE_2D);
 }
 
 void myReshape(int w, int h) {
@@ -362,7 +442,7 @@ void myInit() {
   GLfloat diffuse[] = {1.0, 1.0, 1.0, 1.0};
   GLfloat specular[] = {1.0, 1.0, 1.0, 1.0};
   GLfloat position[] = {30.0, 15.0, 10.0, 1.0};
-  GLfloat mat_ambient[] = {0.1, 0.1, 0.1, 1.0};
+  GLfloat mat_ambient[] = {0.2, 0.2, 0.2, 1.0};
   GLfloat mat_diffuse[] = {0.8, 0.8, 0.8, 1.0};
   GLfloat mat_specular[] = {0.4, 0.4, 0.4, 1.0};
   GLfloat mat_shininess[] = {50.0};
@@ -371,10 +451,10 @@ void myInit() {
   glLoadIdentity();
   gluLookAt(20.0, 5.0, 10.0, 0.0, 2.0, 5.0, 0.0,  0.0, 1.0);
 
-  makeTextureMap();
+  makeTextureMaps();
   makeTextures();
 
- glEnable(GL_TEXTURE_2D);
+ //glEnable(GL_TEXTURE_2D);
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_MAP2_VERTEX_3);
   glEnable(GL_NORMALIZE);
@@ -412,7 +492,7 @@ int main(int argc, char *argv[]) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowSize(500, 500);
-  main_window = glutCreateWindow("Breakfast of champions");
+  main_window = glutCreateWindow("Airplane!");
   glutReshapeFunc(myReshape); 
   glutDisplayFunc(display);
   myInit();

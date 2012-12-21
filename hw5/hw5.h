@@ -8,6 +8,9 @@
 #define DORSAL 2
 #define SIDEDORSAL 3
 
+#define CLOUD -1 
+#define AIRPLANE -2 
+
 GLfloat body[13][3] = {   {-1.0, 0.0, 0.0},
 			    {-1.0, 0.5, 0.0},
 			    {-0.5, 1.0, 0.0},
@@ -71,20 +74,17 @@ GLfloat dorsalControlPoints[SIZE][13][3];
 GLfloat sideDorsalControlPoints[SIZE][13][3];
 GLfloat theta = 0.0;
 
-GLfloat *textureMap;
+GLfloat *textureMapCloud;
+GLfloat *textureMapAirplane;
 int n, m;
 
-GLuint texID;
+GLuint airplaneTexID;
+GLuint cloudTexID;
 
 /* GLUI variables */
-/*
 GLfloat X = 8.0;
 GLfloat Y = 45.0;
 GLfloat Z = 8.0;
-*/
-GLfloat X = -38.0;
-GLfloat Y = 2.0;
-GLfloat Z = 17.0;
 
 GLUquadricObj *p, *q;  
 
